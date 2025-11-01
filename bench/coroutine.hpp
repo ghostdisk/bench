@@ -28,6 +28,6 @@ CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro,
 void Yield(Coroutine* coro);
 bool ResumeCoroutine(Coroutine* coro);
 void ScheduleCoroutine(Coroutine* coro);
-void ExecScheduledCoroutines();
+bool ExecScheduledCoroutines();
 
 }

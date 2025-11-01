@@ -11,6 +11,6 @@ struct File {
 
 File FileOpen(const char* path);
 I32 FileReadAsync(const CoroutineHandle& coro, File& file, I32 size, void* buffer);
-void PollFileEvents();
+bool PollFileEvents();
 
 };

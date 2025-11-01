@@ -178,13 +178,15 @@ void ScheduleCoroutine(Coroutine* coro) {
 	k_scheduled_coroutines.emplace_back(coro);
 }
 
-void ExecScheduledCoroutines() {
+bool ExecScheduledCoroutines() {
 	std::vector<CoroutineHandle> coroutines = std::move(k_scheduled_coroutines);
 	k_scheduled_coroutines.clear();
 
 	for (const CoroutineHandle& handle : coroutines) {
 		ResumeCoroutine(handle);
 	}
+
+	return coroutines.size() > 0;
 }
 
 }
