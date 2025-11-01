@@ -2,6 +2,7 @@
 #include <bench/coroutine.hpp>
 #include <stdlib.h>
 #include <Windows.h>
+#include <atomic>
 #undef Yield // windows...
 
 namespace bench {
@@ -11,10 +12,51 @@ struct CoroutineState {
 	U32* stack_high;
 	U32 coro_esp;
 	U32 orig_esp;
+	std::atomic<int> refcount;
 	void (*entry)(Coroutine coro, void* userdata);
 };
 
 static bool Resume_CoroCompleted();
+
+Coroutine::Coroutine() {
+	this->state = nullptr;
+}
+
+Coroutine::Coroutine(CoroutineState* state) {
+	this->state = state;
+	this->state->refcount++;
+}
+
+Coroutine::Coroutine(const Coroutine& other) {
+	this->state = other.state;
+	this->state->refcount++;
+}
+
+Coroutine::Coroutine(Coroutine&& other) noexcept {
+	this->state = other.state;
+	other.state = nullptr;
+}
+
+Coroutine::~Coroutine() {
+	if (this->state && --this->state->refcount == 0) {
+		VirtualFree(this->state->stack_low, 0, MEM_DECOMMIT | MEM_RELEASE);
+		delete this->state;
+	}
+}
+
+Coroutine& Coroutine::operator=(const Coroutine& other) {
+	return *this;
+}
+
+Coroutine& Coroutine::operator=(Coroutine&& other) noexcept {
+	state = other.state;
+	other.state = nullptr;
+	return *this;
+}
+
+Coroutine::operator CoroutineState*() const {
+	return this->state;
+}
 
 Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userdata), void* userdata) {
 	CoroutineState* state = new CoroutineState();
@@ -22,12 +64,13 @@ Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userd
 	state->entry = entry;
 
 	state->stack_low = (U32*)VirtualAlloc(0, COROUTINE_STACK_SIZE_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	state->stack_low = (U32*)malloc(COROUTINE_STACK_SIZE_BYTES);
-	memset(state->stack_low, 0x14, COROUTINE_STACK_SIZE_BYTES);
 	state->stack_high = state->stack_low + COROUTINE_STACK_SIZE_DWORDS;
+
+	memset(state->stack_low, 0x14, COROUTINE_STACK_SIZE_BYTES);
 
 	// ------------------------------------------------------------
 	// Setup stack:
+
 
 	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 1] = (U32)userdata; // arg1
 	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 2] = (U32)state; // arg2
@@ -38,21 +81,16 @@ Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userd
 	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 7] = 0; // ESI dummy
 	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 8] = 0; // EBX dummy
 
+	state->refcount++;
+
 	state->stack_low[0] = 0x13371337; // guard value
 	state->coro_esp = (U32)&state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 8];
 
-	Coroutine coro = {};
-	coro.state = state;
-	return coro;
+	return Coroutine(state);
 }
 
-void DestroyCoroutine(Coroutine coro) {
-	free(coro.state->stack_low);
-	delete coro.state;
-}
-
-static void CheckStackSmash(Coroutine coro) {
-	AssertAlways(coro.state->stack_low[0] == 0x13371337, "Coroutine stack overflow");
+static void CheckStackSmash(CoroutineState* coro) {
+	AssertAlways(coro->stack_low[0] == 0x13371337, "Coroutine stack overflow");
 }
 
 #pragma runtime_checks("", off)
@@ -75,7 +113,7 @@ static __declspec(naked) bool Resume_CoroCompleted() { // EBP: coro state
 	}
 }
 
-__declspec(naked) bool ResumeCoroutine(Coroutine coro) {
+__declspec(naked) bool ResumeCoroutine(CoroutineState* coro) {
 	__asm {
 		PUSH EBP
 		MOV EBP, ESP
@@ -101,7 +139,7 @@ __declspec(naked) bool ResumeCoroutine(Coroutine coro) {
 	}
 }
 
-void __declspec(naked) Yield(Coroutine current_coro) {
+void __declspec(naked) Yield(CoroutineState* coro) {
 	__asm {
 		PUSH EBP
 		MOV EBP, ESP

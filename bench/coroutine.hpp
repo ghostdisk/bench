@@ -10,13 +10,22 @@ static constexpr int COROUTINE_STACK_SIZE_DWORDS = COROUTINE_STACK_SIZE_BYTES / 
 
 struct CoroutineState;
 
-struct Coroutine {
+class Coroutine {
+public:
 	CoroutineState* state = nullptr;
+
+	Coroutine();
+	Coroutine(CoroutineState*);
+	Coroutine(const Coroutine& other);
+	Coroutine(Coroutine&& other) noexcept;
+	~Coroutine();
+	Coroutine& operator=(const Coroutine& other);
+	Coroutine& operator=(Coroutine&& other) noexcept;
+	operator CoroutineState*() const;
 };
 
 Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userdata), void* userdata);
-void DestroyCoroutine(Coroutine coro);
-void Yield(Coroutine current_coro);
-bool ResumeCoroutine(Coroutine coro);
+void Yield(CoroutineState* coro);
+bool ResumeCoroutine(CoroutineState* coro);
 
 }
