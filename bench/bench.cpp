@@ -1,7 +1,10 @@
+#include <bench/bench.hpp>
+
 namespace bench {
 
-int foo() {
-	return 3;
+bool BenchInit(const BenchInitOptions& options) {
+	int t = 3;
+	return true;
 }
 
 }
