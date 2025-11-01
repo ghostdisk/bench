@@ -14,7 +14,6 @@ struct Coroutine {
 	U32 coro_esp;
 	U32 orig_esp;
 	std::atomic<int> refcount;
-	void (*entry)(CoroutineHandle coro, void* userdata);
 };
 
 static bool Resume_CoroCompleted();
@@ -37,7 +36,6 @@ void RemoveRef(Coroutine* coro) {
 CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata) {
 	Coroutine* coro = new Coroutine();
 
-	coro->entry = entry;
 	coro->stack_low = (U32*)VirtualAlloc(0, COROUTINE_STACK_SIZE_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 	coro->stack_high = coro->stack_low + COROUTINE_STACK_SIZE_DWORDS;
 	AssertAlways(coro->stack_low, "Out of memory");
