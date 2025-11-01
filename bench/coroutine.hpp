@@ -27,5 +27,7 @@ public:
 CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata);
 void Yield(Coroutine* coro);
 bool ResumeCoroutine(Coroutine* coro);
+void ScheduleCoroutine(Coroutine* coro);
+void ExecScheduledCoroutines();
 
 }

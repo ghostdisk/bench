@@ -24,3 +24,29 @@ Benched SDK implements stackful coroutines for convenient asynchronous programmi
 		if (complete) break;
 	}
 ```
+
+Async File IO:
+```cpp
+
+	CoroutineHandle coro = CreateCoroutine([](CoroutineHandle coro, void* userdata) {
+		File file = FileOpen("file.txt");
+
+		char buf[32] = {};
+		
+		// FileReadAsync will yield, and the coroutine will be resumed
+		// after the read asynchronously completes.
+		I32 nread = FileReadAsync(coro, file, 32, buf);
+
+		buf[31] = '\0';
+		printf("%s\n", buf);
+	}, nullptr);
+	ResumeCoroutine(coro);
+
+	for (;;) {
+		PollFileEvents();
+		ExecScheduledCoroutines(); // <- This is where our coroutine will be resumed
+	}
+
+
+
+```

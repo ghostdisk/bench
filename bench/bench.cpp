@@ -2,8 +2,10 @@
 
 namespace bench {
 
+void InitFileIO();
+
 bool BenchInit(const BenchInitOptions& options) {
-	int t = 3;
+	InitFileIO();
 	return true;
 }
 

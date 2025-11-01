@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <Windows.h>
 #include <atomic>
+#include <vector>
 #undef Yield // windows...
 
 namespace bench {
@@ -17,6 +18,8 @@ struct Coroutine {
 };
 
 static bool Resume_CoroCompleted();
+
+static std::vector<CoroutineHandle> k_scheduled_coroutines;
 
 CoroutineHandle::CoroutineHandle() {
 	this->state = nullptr;
@@ -170,5 +173,18 @@ void __declspec(naked) Yield(Coroutine* coro) {
 }
 
 #pragma runtime_checks("", restore)
+
+void ScheduleCoroutine(Coroutine* coro) {
+	k_scheduled_coroutines.emplace_back(coro);
+}
+
+void ExecScheduledCoroutines() {
+	std::vector<CoroutineHandle> coroutines = std::move(k_scheduled_coroutines);
+	k_scheduled_coroutines.clear();
+
+	for (const CoroutineHandle& handle : coroutines) {
+		ResumeCoroutine(handle);
+	}
+}
 
 }
