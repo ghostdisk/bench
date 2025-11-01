@@ -39,7 +39,7 @@ Coroutine::Coroutine(Coroutine&& other) noexcept {
 
 Coroutine::~Coroutine() {
 	if (this->state && --this->state->refcount == 0) {
-		VirtualFree(this->state->stack_low, 0, MEM_DECOMMIT | MEM_RELEASE);
+		VirtualFree(this->state->stack_low, 0, MEM_RELEASE);
 		delete this->state;
 	}
 }
@@ -59,34 +59,37 @@ Coroutine::operator CoroutineState*() const {
 }
 
 Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userdata), void* userdata) {
-	CoroutineState* state = new CoroutineState();
+	CoroutineState* coro = new CoroutineState();
 
-	state->entry = entry;
+	coro->entry = entry;
+	coro->stack_low = (U32*)VirtualAlloc(0, COROUTINE_STACK_SIZE_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	coro->stack_high = coro->stack_low + COROUTINE_STACK_SIZE_DWORDS;
+	AssertAlways(coro->stack_low, "Out of memory");
 
-	state->stack_low = (U32*)VirtualAlloc(0, COROUTINE_STACK_SIZE_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	state->stack_high = state->stack_low + COROUTINE_STACK_SIZE_DWORDS;
-
-	memset(state->stack_low, 0x14, COROUTINE_STACK_SIZE_BYTES);
+#ifdef BENCH_DEBUG
+	memset(coro->stack_low, 0x14, COROUTINE_STACK_SIZE_BYTES);
+#endif
 
 	// ------------------------------------------------------------
 	// Setup stack:
 
+	coro->stack_low[0] = 0x13371337; // stack overflow guard
 
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 1] = (U32)userdata; // arg1
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 2] = (U32)state; // arg2
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 3] = (U32)Resume_CoroCompleted; // ret addr when coro completes
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 4] = (U32)entry; // ret addr for the first Resume()
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 5] = (U32)state; // value of EBP after coro completes
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 6] = 0; // EDI dummy
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 7] = 0; // ESI dummy
-	state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 8] = 0; // EBX dummy
+	*(coro->stack_high - 1) = (U32)userdata; // entry arg2
+	*(coro->stack_high - 2) = (U32)coro; // entry arg1
+	*(coro->stack_high - 3) = (U32)Resume_CoroCompleted; // ret addr when coro completes
+	*(coro->stack_high - 4) = (U32)entry; // ret addr for the first Resume()
+	*(coro->stack_high - 5) = (U32)coro; // value of EBP after coro completes
+	// *(coro->stack_hgih - 6) = 0; // EDI
+	// *(coro->stack_hgih - 7) = 0; // ESI
+	// *(coro->stack_hgih - 8) = 0; // EBX 
+	coro->coro_esp = (U32)(coro->stack_high - 8);
 
-	state->refcount++;
+	// entry arg1 is of type Coroutine and will decrement refcount when the coroutine completes,
+	// but it was never constructed, so we have to manually increment refcount:
+	coro->refcount++;
 
-	state->stack_low[0] = 0x13371337; // guard value
-	state->coro_esp = (U32)&state->stack_low[COROUTINE_STACK_SIZE_DWORDS - 8];
-
-	return Coroutine(state);
+	return Coroutine(coro);
 }
 
 static void CheckStackSmash(CoroutineState* coro) {

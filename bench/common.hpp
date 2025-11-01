@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <sal.h>
 
 /*
  * The Benched SDK reserves the right to pollute your global namespace with our
@@ -23,6 +24,7 @@ typedef bool     Bool;
 
 namespace bench {
 
+_When_(!condition, _Analysis_noreturn_)
 void AssertAlways(bool condition, const char* fail_message);
 
 }

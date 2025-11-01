@@ -10,3 +10,7 @@ target_include_directories(bench_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 if (WIN32)
 	target_compile_definitions(bench_core PUBLIC BENCH_WIN32)
 endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_compile_definitions(bench_core PUBLIC BENCH_DEBUG)
+endif()
