@@ -3,6 +3,7 @@
 #include <bench/file.hpp>
 #include <bench/coroutine.hpp>
 #include <Windows.h>
+#include <profileapi.h>
 #undef CreateWindow
 
 namespace bench {
@@ -15,6 +16,8 @@ struct IOOperation {
 
 HINSTANCE g_hinstance = nullptr;
 static HANDLE g_iocp = nullptr;
+static double g_timer_frequency = {};
+static LARGE_INTEGER g_timer_start = {};
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     return DefWindowProcA(hwnd, msg, wparam, lparam);
@@ -33,6 +36,12 @@ void InitWin32() {
     wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndclass.lpszClassName = "BENCHWNDCLASS";
     RegisterClassA(&wndclass);
+
+	QueryPerformanceCounter(&g_timer_start);
+
+	LARGE_INTEGER timer_frequency_int;
+	QueryPerformanceFrequency(&timer_frequency_int);
+	g_timer_frequency = double(timer_frequency_int.QuadPart);
 }
 
 void AssertAlways(bool condition, const char* fail_message) {
@@ -122,5 +131,12 @@ I32 FileReadAsync(const CoroutineHandle& coro, File& file, I32 size, void* buffe
 	Yield(coro);
 	return operation.num_read;
 }
+
+double GetTime() {
+	LARGE_INTEGER now = {};
+	QueryPerformanceCounter(&now);
+	return double(now.QuadPart - g_timer_start.QuadPart) / g_timer_frequency;
+}
+
 
 }

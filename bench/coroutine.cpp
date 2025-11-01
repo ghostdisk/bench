@@ -33,7 +33,7 @@ void RemoveRef(Coroutine* coro) {
 	}
 }
 
-CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata) {
+CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata) {
 	Coroutine* coro = new Coroutine();
 
 	coro->stack_low = (U32*)VirtualAlloc(0, COROUTINE_STACK_SIZE_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -63,7 +63,8 @@ CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro,
 	// but it was never constructed, so we have to manually increment refcount:
 	coro->refcount++;
 
-	return CoroutineHandle(coro);
+	ScheduleCoroutine(coro);
+	return coro;
 }
 
 static void CheckStackSmash(Coroutine* coro) {

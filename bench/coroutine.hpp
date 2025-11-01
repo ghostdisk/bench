@@ -12,7 +12,7 @@ static constexpr int COROUTINE_STACK_SIZE_DWORDS = COROUTINE_STACK_SIZE_BYTES / 
 struct Coroutine;
 using CoroutineHandle = RefHandle<Coroutine>;
 
-CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata);
+CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata = nullptr);
 void Yield(Coroutine* coro);
 bool ResumeCoroutine(Coroutine* coro);
 void ScheduleCoroutine(Coroutine* coro);

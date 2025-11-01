@@ -1,6 +1,6 @@
-# Benched Software Development Kit
+# Bench Software Development Kit
 
-The Benched Software Development Kit (The SDK) is a collection of libraries and applications aimed to ease the development of 3D multimedia applications for Windows XP computers.
+The Bench Software Development Kit (The SDK) is a collection of libraries and applications aimed to ease the development of 3D multimedia applications for Windows XP computers.
 
 *TODO: The SDK does not yet exist.*
 
@@ -8,27 +8,24 @@ The Benched Software Development Kit (The SDK) is a collection of libraries and 
 
 ### Asynchronous Programming
 
-Benched SDK implements stackful coroutines for convenient asynchronous programming.
+The SDK provides a Powerful Userspace Coroutine Scheduling System to enable convenient asynchronous programming. If you want something to happen once per second, fire a coroutine with a loop, and call Sleep in it:
 
+If you want to do something once per frame, fire a coroutine with a loop and Sleep(1).
 ```cpp
-	CoroutineHandle coro = CreateCoroutine([](CoroutineHandle coro, void* userdata) {
-		for (int i = 0; i < 5; i++) {
-			printf("Iter %d\n", i);
-			Yield(coro);
+	StartCoroutine([](CoroutineHandle coro, void* userdata) {
+		for (;;) {
+			printf("tic\n");
+			Sleep(coro, 1.0);
+			printf("tac\n");
+			Sleep(coro, 1.0);
 		}
-	}, nullptr);
-
-	for (;;) {
-		printf("Resuming!\n");
-		bool complete = ResumeCoroutine(coro);
-		if (complete) break;
-	}
+	});
 ```
 
-Async File IO:
-```cpp
+Coroutines are also leveraged for async I/O:
 
-	CoroutineHandle coro = CreateCoroutine([](CoroutineHandle coro, void* userdata) {
+```cpp
+	StartCoroutine([](CoroutineHandle coro, void* userdata) {
 		File file = FileOpen("file.txt");
 
 		char buf[32] = {};
@@ -40,13 +37,4 @@ Async File IO:
 		buf[31] = '\0';
 		printf("%s\n", buf);
 	}, nullptr);
-	ResumeCoroutine(coro);
-
-	for (;;) {
-		PollFileEvents();
-		ExecScheduledCoroutines(); // <- This is where our coroutine will be resumed
-	}
-
-
-
 ```

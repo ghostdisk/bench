@@ -1,5 +1,6 @@
 #include <bench/application.hpp>
 #include <bench/file.hpp>
+#include <bench/time.hpp>
 #include <bench/window.hpp>
 #include <bench/coroutine.hpp>
 
@@ -22,6 +23,7 @@ void ApplicationDoFrame() {
 	do {
 		did_something = false;
 		did_something |= PollFileEvents();
+		did_something |= ProcessSleepingCoroutines();
 		did_something |= PollWindowEvents();
 		did_something |= ExecScheduledCoroutines();
 	} while (did_something);
