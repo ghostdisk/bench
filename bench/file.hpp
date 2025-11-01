@@ -6,8 +6,10 @@ namespace bench {
 
 struct Coroutine;
 
-struct File {
-	void* handle = nullptr;
+enum class FileSeek {
+	START,
+	CURRENT,
+	END,
 };
 
 BENCH_flags(FileFlags, U32,
@@ -24,8 +26,23 @@ enum class FileCreateDisposition {
 	TRUNCATE_EXISTING  = 5,
 };
 
-File FileOpen(const char* path, FileFlags flags, FileCreateDisposition mode);
-I32 FileReadAsync(Coroutine* coro, File& file, I32 size, void* buffer);
+struct File {
+	void* handle = nullptr;
+
+	static File Open(const char* path, FileFlags flags, FileCreateDisposition mode);
+	static bool ReadEntireFile(const char* path, void** out_data, U32* out_size);
+
+	I32 Read(I32 size, void* buffer);
+	I32 ReadAsync(Coroutine* coro, I32 size, void* buffer);
+	void Seek(I32 offset, FileSeek whence);
+	U32 Tell();
+	void Close();
+
+	operator bool() {
+		return handle != nullptr;
+	}
+};
+
 bool PollFileEvents();
 
 };

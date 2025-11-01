@@ -4,7 +4,10 @@
 #include <bench/coroutine.hpp>
 #include <Windows.h>
 #include <profileapi.h>
+
+// undef insane Window.h macros:
 #undef CreateWindow
+#undef Yield
 
 namespace bench {
 
@@ -44,6 +47,7 @@ void InitWin32() {
 	g_timer_frequency = double(timer_frequency_int.QuadPart);
 }
 
+_When_(!condition, _Analysis_noreturn_)
 void AssertAlways(bool condition, const char* fail_message) {
 	if (!condition) {
 		MessageBoxA(nullptr, fail_message, "Fatal Error", MB_ICONERROR | MB_OK);
@@ -104,8 +108,7 @@ bool PollFileEvents() {
 	return had_any;
 }
 
-File FileOpen(const char* path, FileFlags flags, FileCreateDisposition create_disposition) {
-
+File File::Open(const char* path, FileFlags flags, FileCreateDisposition create_disposition) {
 	DWORD access = 0;
 	if (flags & FileFlags::READ) access |= GENERIC_READ;
 	if (flags & FileFlags::WRITE) access |= GENERIC_WRITE;
@@ -114,20 +117,28 @@ File FileOpen(const char* path, FileFlags flags, FileCreateDisposition create_di
 	if (flags & FileFlags::ASYNC) attributes |= FILE_FLAG_OVERLAPPED;
 
 	HANDLE handle = CreateFileA(path, access, 0, nullptr, (DWORD)create_disposition, attributes, nullptr);
-	HANDLE iocp = CreateIoCompletionPort(handle, g_iocp, 0x12345678, 0);
+
+	if (flags & FileFlags::ASYNC)
+		CreateIoCompletionPort(handle, g_iocp, 0x12345678, 0);
 
 	File file = {};
 	file.handle = handle;
 	return file;
 }
 
-I32 FileReadAsync(const CoroutineHandle& coro, File& file, I32 size, void* buffer) {
+I32 File::Read(I32 size, void* buffer) {
+	DWORD num_read = 0;
+	BOOL ok = ::ReadFile(this->handle, buffer, size, &num_read, nullptr);
+	if (ok)
+		return (I32)num_read;
+	else
+		return -1;
+}
 
+I32 File::ReadAsync(Coroutine* coro, I32 size, void* buffer) {
 	IOOperation operation = {};
 	operation.coro = coro;
-
-	BOOL res = ::ReadFile(file.handle, buffer, size, nullptr, &operation.overlapped);
-
+	::ReadFile(this->handle, buffer, size, nullptr, &operation.overlapped);
 	Yield(coro);
 	return operation.num_read;
 }
@@ -138,5 +149,24 @@ double GetTime() {
 	return double(now.QuadPart - g_timer_start.QuadPart) / g_timer_frequency;
 }
 
+void File::Seek(I32 offset, FileSeek whence) {
+	DWORD method = 0;
+	switch (whence) {
+		case FileSeek::START: method = FILE_BEGIN; break;
+		case FileSeek::CURRENT: method = FILE_CURRENT; break;
+		case FileSeek::END: method = FILE_END; break;
+	}
+	SetFilePointer(this->handle, offset, nullptr, method);
+}
+
+U32 File::Tell() {
+	DWORD offset = SetFilePointer(this->handle, 0, nullptr, FILE_CURRENT);
+	return offset;
+}
+
+void File::Close() {
+	CloseHandle(this->handle);
+	handle = nullptr;
+}
 
 }

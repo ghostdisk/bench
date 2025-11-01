@@ -6,6 +6,8 @@ add_library(bench_core STATIC
 	bench/win32.cpp
 	bench/renderer.cpp
 	bench/time.cpp
+	bench/ini.cpp
+	bench/file.cpp
 )
 
 target_include_directories(bench_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
