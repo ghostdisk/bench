@@ -21,44 +21,17 @@ static bool Resume_CoroCompleted();
 
 static std::vector<CoroutineHandle> k_scheduled_coroutines;
 
-CoroutineHandle::CoroutineHandle() {
-	this->state = nullptr;
+template <>
+void AddRef(Coroutine* coro) {
+	++coro->refcount;
 }
 
-CoroutineHandle::CoroutineHandle(Coroutine* state) {
-	this->state = state;
-	this->state->refcount++;
-}
-
-CoroutineHandle::CoroutineHandle(const CoroutineHandle& other) {
-	this->state = other.state;
-	this->state->refcount++;
-}
-
-CoroutineHandle::CoroutineHandle(CoroutineHandle&& other) noexcept {
-	this->state = other.state;
-	other.state = nullptr;
-}
-
-CoroutineHandle::~CoroutineHandle() {
-	if (this->state && --this->state->refcount == 0) {
-		VirtualFree(this->state->stack_low, 0, MEM_RELEASE);
-		delete this->state;
+template <>
+void RemoveRef(Coroutine* coro) {
+	if (--coro->refcount == 0) {
+		VirtualFree(coro->stack_low, 0, MEM_RELEASE);
+		delete coro;
 	}
-}
-
-CoroutineHandle& CoroutineHandle::operator=(const CoroutineHandle& other) {
-	return *this;
-}
-
-CoroutineHandle& CoroutineHandle::operator=(CoroutineHandle&& other) noexcept {
-	state = other.state;
-	other.state = nullptr;
-	return *this;
-}
-
-CoroutineHandle::operator Coroutine*() const {
-	return this->state;
 }
 
 CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata) {

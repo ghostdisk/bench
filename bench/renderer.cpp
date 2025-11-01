@@ -2,6 +2,7 @@
 
 namespace bench {
 
-void InitRenderer();
+void InitRenderer() {
+}
 
 }

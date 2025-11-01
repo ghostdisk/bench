@@ -9,7 +9,7 @@ namespace bench {
 
 struct IOOperation {
 	OVERLAPPED overlapped = {};
-	Coroutine* coro = nullptr;
+	CoroutineHandle coro = nullptr;
 	I32 num_read = 0;
 };
 
@@ -95,8 +95,16 @@ bool PollFileEvents() {
 	return had_any;
 }
 
-File FileOpen(const char* path) {
-	HANDLE handle = CreateFileA(path, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr);
+File FileOpen(const char* path, FileFlags flags, FileCreateDisposition create_disposition) {
+
+	DWORD access = 0;
+	if (flags & FileFlags::READ) access |= GENERIC_READ;
+	if (flags & FileFlags::WRITE) access |= GENERIC_WRITE;
+
+	DWORD attributes = FILE_ATTRIBUTE_NORMAL;
+	if (flags & FileFlags::ASYNC) attributes |= FILE_FLAG_OVERLAPPED;
+
+	HANDLE handle = CreateFileA(path, access, 0, nullptr, (DWORD)create_disposition, attributes, nullptr);
 	HANDLE iocp = CreateIoCompletionPort(handle, g_iocp, 0x12345678, 0);
 
 	File file = {};
@@ -107,7 +115,7 @@ File FileOpen(const char* path) {
 I32 FileReadAsync(const CoroutineHandle& coro, File& file, I32 size, void* buffer) {
 
 	IOOperation operation = {};
-	operation.coro = coro.state;
+	operation.coro = coro;
 
 	BOOL res = ::ReadFile(file.handle, buffer, size, nullptr, &operation.overlapped);
 
