@@ -8,24 +8,24 @@ namespace bench {
 static constexpr int COROUTINE_STACK_SIZE_BYTES = (8 << 10);
 static constexpr int COROUTINE_STACK_SIZE_DWORDS = COROUTINE_STACK_SIZE_BYTES / 4;
 
-struct CoroutineState;
+struct Coroutine;
 
-class Coroutine {
+class CoroutineHandle {
 public:
-	CoroutineState* state = nullptr;
+	Coroutine* state = nullptr;
 
-	Coroutine();
-	Coroutine(CoroutineState*);
-	Coroutine(const Coroutine& other);
-	Coroutine(Coroutine&& other) noexcept;
-	~Coroutine();
-	Coroutine& operator=(const Coroutine& other);
-	Coroutine& operator=(Coroutine&& other) noexcept;
-	operator CoroutineState*() const;
+	CoroutineHandle();
+	CoroutineHandle(Coroutine*);
+	CoroutineHandle(const CoroutineHandle& other);
+	CoroutineHandle(CoroutineHandle&& other) noexcept;
+	~CoroutineHandle();
+	CoroutineHandle& operator=(const CoroutineHandle& other);
+	CoroutineHandle& operator=(CoroutineHandle&& other) noexcept;
+	operator Coroutine*() const;
 };
 
-Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userdata), void* userdata);
-void Yield(CoroutineState* coro);
-bool ResumeCoroutine(CoroutineState* coro);
+CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata);
+void Yield(Coroutine* coro);
+bool ResumeCoroutine(Coroutine* coro);
 
 }

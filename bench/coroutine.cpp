@@ -7,59 +7,59 @@
 
 namespace bench {
 
-struct CoroutineState {
+struct Coroutine {
 	U32* stack_low;
 	U32* stack_high;
 	U32 coro_esp;
 	U32 orig_esp;
 	std::atomic<int> refcount;
-	void (*entry)(Coroutine coro, void* userdata);
+	void (*entry)(CoroutineHandle coro, void* userdata);
 };
 
 static bool Resume_CoroCompleted();
 
-Coroutine::Coroutine() {
+CoroutineHandle::CoroutineHandle() {
 	this->state = nullptr;
 }
 
-Coroutine::Coroutine(CoroutineState* state) {
+CoroutineHandle::CoroutineHandle(Coroutine* state) {
 	this->state = state;
 	this->state->refcount++;
 }
 
-Coroutine::Coroutine(const Coroutine& other) {
+CoroutineHandle::CoroutineHandle(const CoroutineHandle& other) {
 	this->state = other.state;
 	this->state->refcount++;
 }
 
-Coroutine::Coroutine(Coroutine&& other) noexcept {
+CoroutineHandle::CoroutineHandle(CoroutineHandle&& other) noexcept {
 	this->state = other.state;
 	other.state = nullptr;
 }
 
-Coroutine::~Coroutine() {
+CoroutineHandle::~CoroutineHandle() {
 	if (this->state && --this->state->refcount == 0) {
 		VirtualFree(this->state->stack_low, 0, MEM_RELEASE);
 		delete this->state;
 	}
 }
 
-Coroutine& Coroutine::operator=(const Coroutine& other) {
+CoroutineHandle& CoroutineHandle::operator=(const CoroutineHandle& other) {
 	return *this;
 }
 
-Coroutine& Coroutine::operator=(Coroutine&& other) noexcept {
+CoroutineHandle& CoroutineHandle::operator=(CoroutineHandle&& other) noexcept {
 	state = other.state;
 	other.state = nullptr;
 	return *this;
 }
 
-Coroutine::operator CoroutineState*() const {
+CoroutineHandle::operator Coroutine*() const {
 	return this->state;
 }
 
-Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userdata), void* userdata) {
-	CoroutineState* coro = new CoroutineState();
+CoroutineHandle CreateCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata) {
+	Coroutine* coro = new Coroutine();
 
 	coro->entry = entry;
 	coro->stack_low = (U32*)VirtualAlloc(0, COROUTINE_STACK_SIZE_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -85,14 +85,14 @@ Coroutine CreateCoroutine(void (BENCHCOROAPI *entry)(Coroutine coro, void* userd
 	// *(coro->stack_hgih - 8) = 0; // EBX 
 	coro->coro_esp = (U32)(coro->stack_high - 8);
 
-	// entry arg1 is of type Coroutine and will decrement refcount when the coroutine completes,
+	// entry arg1 is of type CoroutineHandle and will decrement refcount when the coroutine completes,
 	// but it was never constructed, so we have to manually increment refcount:
 	coro->refcount++;
 
-	return Coroutine(coro);
+	return CoroutineHandle(coro);
 }
 
-static void CheckStackSmash(CoroutineState* coro) {
+static void CheckStackSmash(Coroutine* coro) {
 	AssertAlways(coro->stack_low[0] == 0x13371337, "Coroutine stack overflow");
 }
 
@@ -116,7 +116,7 @@ static __declspec(naked) bool Resume_CoroCompleted() { // EBP: coro state
 	}
 }
 
-__declspec(naked) bool ResumeCoroutine(CoroutineState* coro) {
+__declspec(naked) bool ResumeCoroutine(Coroutine* coro) {
 	__asm {
 		// save callee-saved registers onto original stack:
 		PUSH EBP
@@ -140,7 +140,7 @@ __declspec(naked) bool ResumeCoroutine(CoroutineState* coro) {
 	}
 }
 
-void __declspec(naked) Yield(CoroutineState* coro) {
+void __declspec(naked) Yield(Coroutine* coro) {
 	__asm {
 		PUSH EBP
 		MOV EBP, ESP

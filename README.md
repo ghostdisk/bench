@@ -11,7 +11,7 @@ The Benched Software Development Kit (The SDK) is a collection of libraries and 
 Benched SDK implements stackful coroutines for convenient asynchronous programming.
 
 ```cpp
-	Coroutine coro = CreateCoroutine([](Coroutine coro, void* userdata) {
+	CoroutineHandle coro = CreateCoroutine([](CoroutineHandle coro, void* userdata) {
 		for (int i = 0; i < 5; i++) {
 			printf("Iter %d\n", i);
 			Yield(coro);
