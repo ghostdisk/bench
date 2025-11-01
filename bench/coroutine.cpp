@@ -118,15 +118,13 @@ static __declspec(naked) bool Resume_CoroCompleted() { // EBP: coro state
 
 __declspec(naked) bool ResumeCoroutine(CoroutineState* coro) {
 	__asm {
-		PUSH EBP
-		MOV EBP, ESP
-
 		// save callee-saved registers onto original stack:
+		PUSH EBP
 		PUSH EDI
 		PUSH ESI
 		PUSH EBX
 
-		MOV EAX, [EBP + 8] // current_coro.state
+		MOV EAX, [ESP + 20] // current_coro.state
 		MOV [EAX + 12], ESP // save original stack into the coroutine
 
 		// load coro ESP:
