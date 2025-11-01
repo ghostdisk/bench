@@ -6,12 +6,14 @@
 namespace bench {
 
 void InitWin32();
+void InitRenderer();
 
 Window g_main_window = {};
 
 bool ApplicationInit(const ApplicationInitOptions& options) {
 	InitWin32();
 	g_main_window = CreateWindow(options.main_window_options);
+	InitRenderer();
 	return true;
 }
 
