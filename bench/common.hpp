@@ -28,3 +28,7 @@ _When_(!condition, _Analysis_noreturn_)
 void AssertAlways(bool condition, const char* fail_message);
 
 }
+
+#ifndef BENCH_WIN32
+#	error BENCH_WIN32 must be defined
+#endif

@@ -3,6 +3,8 @@
 
 namespace bench {
 
+
+
 IniFile IniFile::Load(const char* path) {
 	void* file_data;
 	U32 file_size;

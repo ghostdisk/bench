@@ -3,7 +3,6 @@
 #include <bench/file.hpp>
 #include <bench/coroutine.hpp>
 #include <Windows.h>
-#include <profileapi.h>
 
 // undef insane Window.h macros:
 #undef CreateWindow
@@ -35,7 +34,10 @@ void InitWin32() {
 	WNDCLASSA wndclass = {};
     wndclass.lpfnWndProc = WindowProc;
     wndclass.hInstance = g_hinstance;
-    wndclass.hCursor = LoadCursorA(nullptr, IDC_ARROW);
+
+	// NOTE: here we're using LoadCursor the LoadCursor macro, as IDC_ARROW is either LPCWSTR or LPCSTR, based off if UNICODE is defined.
+	//       in all other places we use the A/W versions directly.
+    wndclass.hCursor = LoadCursor(nullptr, IDC_ARROW); 
     wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndclass.lpszClassName = "BENCHWNDCLASS";
     RegisterClassA(&wndclass);
