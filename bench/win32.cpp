@@ -1,4 +1,6 @@
 #include <bench/common.hpp>
+#include <bench/utils/defer.hpp>
+#include <bench/arena.hpp>
 #include <bench/window.hpp>
 #include <bench/file.hpp>
 #include <bench/coroutine.hpp>
@@ -58,7 +60,9 @@ void AssertAlways(bool condition, const char* fail_message) {
 }
 
 Window CreateWindow(const CreateWindowOptions& options) {
-    HWND hwnd =::CreateWindowExA(0, "BENCHWNDCLASS", options.title, WS_OVERLAPPEDWINDOW,
+	ScratchArenaView scratch = Arena::Scratch();
+
+    HWND hwnd =::CreateWindowExA(0, "BENCHWNDCLASS", scratch.arena.InternCString(options.title), WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         options.width, options.height,
         nullptr, // parent,
@@ -169,6 +173,13 @@ U32 File::Tell() {
 void File::Close() {
 	CloseHandle(this->handle);
 	handle = nullptr;
+}
+
+I32 File::Write(I32 size, const void* buffer) {
+	DWORD num_written = 0;
+	BOOL ok = ::WriteFile(this->handle, buffer, size, &num_written, nullptr);
+	if (ok) return (I32)num_written;
+	else return -1;
 }
 
 }

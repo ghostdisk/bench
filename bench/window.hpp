@@ -1,4 +1,5 @@
 #pragma once
+#include <bench/string.hpp>
 
 typedef struct HWND__* HWND;
 typedef struct HINSTANCE__* HINSTANCE;
@@ -10,7 +11,7 @@ struct Window {
 };
 
 struct CreateWindowOptions {
-	const char* title;
+	String title;
 	U32 width;
 	U32 height;
 };

@@ -80,7 +80,7 @@ bool ExecScheduledCoroutines() {
 	k_scheduled_coroutines.clear();
 
 	// TODO!!! If we do `const CoroutineHandle&` here, MSVC generates broken code on /O2.
-	for (CoroutineHandle handle : coroutines) {
+	for (const CoroutineHandle& handle : coroutines) {
 		ResumeCoroutine(handle);
 	}
 

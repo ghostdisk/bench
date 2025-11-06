@@ -4,13 +4,14 @@
 
 namespace bench {
 
-struct ApplicationInitOptions {
-	U32 struct_size = sizeof(ApplicationInitOptions);
-	CreateWindowOptions main_window_options = {};
+struct InitApplicationOptions {
+	U32 struct_size = sizeof(InitApplicationOptions);
+	String title = {};
 };
 
-bool ApplicationInit(const ApplicationInitOptions& options);
-void ApplicationDoFrame();
+bool InitApplication(const InitApplicationOptions& options);
+void BeginFrame();
+void EndFrame();
 Window GetMainWindow();
 
 }

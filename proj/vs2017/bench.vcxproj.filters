@@ -17,6 +17,10 @@
     <ClInclude Include="..\..\bench\utils\flags.hpp">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\bench\utils\defer.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bench\gamesettings.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\bench\application.cpp" />
@@ -26,6 +30,8 @@
     <ClCompile Include="..\..\bench\renderer.cpp" />
     <ClCompile Include="..\..\bench\time.cpp" />
     <ClCompile Include="..\..\bench\win32.cpp" />
+    <ClCompile Include="..\..\bench\string.cpp" />
+    <ClCompile Include="..\..\bench\arena.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="utils">
@@ -34,5 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\..\bench\coroutine_win32_x86.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\..\bench\bench.natvis" />
   </ItemGroup>
 </Project>
