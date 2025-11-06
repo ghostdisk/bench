@@ -78,7 +78,7 @@ Currently this is the only officially supported setup. On Visual Studio 2022 you
 			- Input/
 				- Additional Dependencies: Add bench.lib
 			- Advanced/
-				Image Has Safe Exception Handlers: No (/SAFESEH:NO)
+				- Image Has Safe Exception Handlers: No (/SAFESEH:NO)
 				
 ### Custom Setups
 
