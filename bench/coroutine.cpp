@@ -8,6 +8,8 @@
 
 namespace bench {
 
+extern "C" bool __cdecl bench_Resume_CoroCompleted(bench::Coroutine* coro);
+
 struct Coroutine {
 	U32* stack_low;
 	U32* stack_high;
@@ -15,8 +17,6 @@ struct Coroutine {
 	U32 orig_esp;
 	std::atomic<int> refcount;
 };
-
-static bool Resume_CoroCompleted();
 
 static std::vector<CoroutineHandle> k_scheduled_coroutines;
 
@@ -51,7 +51,7 @@ CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, 
 
 	*(coro->stack_high - 1) = (U32)userdata; // entry arg2
 	*(coro->stack_high - 2) = (U32)coro; // entry arg1
-	*(coro->stack_high - 3) = (U32)Resume_CoroCompleted; // ret addr when coro completes
+	*(coro->stack_high - 3) = (U32)bench_Resume_CoroCompleted; // ret addr when coro completes
 	*(coro->stack_high - 4) = (U32)entry; // ret addr for the first Resume()
 	*(coro->stack_high - 5) = (U32)coro; // value of EBP after coro completes
 	// *(coro->stack_hgih - 6) = 0; // EDI
@@ -71,90 +71,16 @@ static void CheckStackSmash(Coroutine* coro) {
 	AssertAlways(coro->stack_low[0] == 0x13371337, "Coroutine stack overflow");
 }
 
-#pragma runtime_checks("", off)
-
-static __declspec(naked) bool Resume_CoroCompleted() { // EBP: coro state
-	__asm {
-		PUSH EBP // coro.state
-		CALL CheckStackSmash
-		ADD ESP, 4
-
-		MOV ESP, [EBP + 12] // coro.orig_stack
-
-		POP EBX
-		POP ESI
-		POP EDI
-		POP EBP
-
-		MOV EAX, 1
-		RET
-	}
-}
-
-__declspec(naked) bool ResumeCoroutine(Coroutine* coro) {
-	__asm {
-		// save callee-saved registers onto original stack:
-		PUSH EBP
-		PUSH EDI
-		PUSH ESI
-		PUSH EBX
-
-		MOV EAX, [ESP + 20] // current_coro.state
-		MOV [EAX + 12], ESP // save original stack into the coroutine
-
-		// load coro ESP:
-		MOV ESP, [EAX + 8] // ESP = current_coro.state.coro_esp
-
-		// load coro saved registers:
-		POP EBX
-		POP ESI
-		POP EDI
-		POP EBP
-
-		RET
-	}
-}
-
-void __declspec(naked) Yield(Coroutine* coro) {
-	__asm {
-		PUSH EBP
-		MOV EBP, ESP
-
-		PUSH [EBP + 8] // coro.state
-		CALL CheckStackSmash
-		ADD ESP, 4
-
-		PUSH EDI
-		PUSH ESI
-		PUSH EBX
-
-		MOV EAX, [EBP + 8] // current_coro.state
-		MOV [EAX + 8], ESP // save coro stack into the coroutine
-
-		// load original ESP:
-		MOV ESP, [EAX + 12]
-
-		POP EBX
-		POP ESI
-		POP EDI
-		POP EBP
-
-		MOV EAX, 0
-		RET
-	}
-}
-
-#pragma runtime_checks("", restore)
-
 void ScheduleCoroutine(Coroutine* coro) {
 	k_scheduled_coroutines.emplace_back(coro);
 }
 
 bool ExecScheduledCoroutines() {
-	std::vector<CoroutineHandle> coroutines = std::move(k_scheduled_coroutines);
+	std::vector<CoroutineHandle> coroutines = k_scheduled_coroutines;
 	k_scheduled_coroutines.clear();
 
-	for (const CoroutineHandle& handle : coroutines) {
+	// TODO!!! If we do `const CoroutineHandle&` here, MSVC generates broken code on /O2.
+	for (CoroutineHandle handle : coroutines) {
 		ResumeCoroutine(handle);
 	}
 

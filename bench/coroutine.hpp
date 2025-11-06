@@ -13,9 +13,22 @@ struct Coroutine;
 using CoroutineHandle = RefHandle<Coroutine>;
 
 CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata = nullptr);
-void Yield(Coroutine* coro);
-bool ResumeCoroutine(Coroutine* coro);
 void ScheduleCoroutine(Coroutine* coro);
 bool ExecScheduledCoroutines();
+
+}
+
+extern "C" void __cdecl bench_Yield(bench::Coroutine* coro);
+extern "C" bool __cdecl bench_ResumeCoroutine(bench::Coroutine* coro);
+
+namespace bench {
+
+inline void Yield(bench::Coroutine* coro) {
+	bench_Yield(coro);
+}
+
+inline bool ResumeCoroutine(bench::Coroutine* coro) {
+	return bench_ResumeCoroutine(coro);
+}
 
 }

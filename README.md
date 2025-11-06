@@ -77,6 +77,8 @@ Currently this is the only officially supported setup. On Visual Studio 2022 you
 				- Additional Library Directories: Add $(OutDir)
 			- Input/
 				- Additional Dependencies: Add bench.lib
+			- Advanced/
+				Image Has Safe Exception Handlers: No (/SAFESEH:NO)
 				
 ### Custom Setups
 

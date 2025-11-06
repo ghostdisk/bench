@@ -1,35 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="..\..\..\bench\arena.hpp" />
-    <ClInclude Include="..\..\..\bench\common.hpp" />
-    <ClInclude Include="..\..\..\bench\coroutine.hpp" />
-    <ClInclude Include="..\..\..\bench\file.hpp" />
-    <ClInclude Include="..\..\..\bench\ini.hpp" />
-    <ClInclude Include="..\..\..\bench\renderer.hpp" />
-    <ClInclude Include="..\..\..\bench\string.hpp" />
-    <ClInclude Include="..\..\..\bench\time.hpp" />
-    <ClInclude Include="..\..\..\bench\window.hpp" />
-    <ClInclude Include="..\..\..\bench\application.hpp" />
-    <ClInclude Include="..\..\..\bench\utils\refhandle.hpp">
+    <ClInclude Include="..\..\bench\application.hpp" />
+    <ClInclude Include="..\..\bench\arena.hpp" />
+    <ClInclude Include="..\..\bench\common.hpp" />
+    <ClInclude Include="..\..\bench\coroutine.hpp" />
+    <ClInclude Include="..\..\bench\file.hpp" />
+    <ClInclude Include="..\..\bench\ini.hpp" />
+    <ClInclude Include="..\..\bench\renderer.hpp" />
+    <ClInclude Include="..\..\bench\string.hpp" />
+    <ClInclude Include="..\..\bench\time.hpp" />
+    <ClInclude Include="..\..\bench\window.hpp" />
+    <ClInclude Include="..\..\bench\utils\refhandle.hpp">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\bench\utils\flags.hpp">
+    <ClInclude Include="..\..\bench\utils\flags.hpp">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\bench\coroutine.cpp" />
-    <ClCompile Include="..\..\..\bench\file.cpp" />
-    <ClCompile Include="..\..\..\bench\ini.cpp" />
-    <ClCompile Include="..\..\..\bench\renderer.cpp" />
-    <ClCompile Include="..\..\..\bench\time.cpp" />
-    <ClCompile Include="..\..\..\bench\win32.cpp" />
-    <ClCompile Include="..\..\..\bench\application.cpp" />
+    <ClCompile Include="..\..\bench\application.cpp" />
+    <ClCompile Include="..\..\bench\coroutine.cpp" />
+    <ClCompile Include="..\..\bench\file.cpp" />
+    <ClCompile Include="..\..\bench\ini.cpp" />
+    <ClCompile Include="..\..\bench\renderer.cpp" />
+    <ClCompile Include="..\..\bench\time.cpp" />
+    <ClCompile Include="..\..\bench\win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="utils">
       <UniqueIdentifier>{1bac3f5f-7d6a-43c7-812b-31cd11cce369}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\..\bench\coroutine_win32_x86.asm" />
   </ItemGroup>
 </Project>

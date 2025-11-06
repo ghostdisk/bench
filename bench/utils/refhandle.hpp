@@ -48,6 +48,7 @@ public:
 	~RefHandle() {
 		if (this->data) {
 			RemoveRef(this->data);
+			this->data = nullptr;
 		}
 	}
 
