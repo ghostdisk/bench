@@ -1,23 +1,22 @@
 #pragma once
-#include <vector>
-#include <string>
+#include <bench/string.hpp>
+#include <unordered_map>
 
 namespace bench {
 
-struct IniFileEntry {
-	std::string key;
-	std::string value;
-};
-
 struct IniFile {
-	const char* path;
-	std::vector<IniFileEntry> entries;
+	std::string path;
+	std::unordered_map<std::string, std::string> entries;
+	bool dirty = false;
 
 	static IniFile Load(const char* path);
-	void Save(const char* path);
+	void Save();
 
-	std::string Get(std::string section, std::string key);
-	void Set(std::string section, std::string key, std::string value);
+	String GetString(String key, String fallback = {});
+	void SetString(String key, String value);
+
+	I32 GetInt(String key, I32 fallback = 0);
+	void SetInt(String key, I32 value);
 };
 
 }

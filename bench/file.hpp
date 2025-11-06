@@ -33,13 +33,15 @@ struct File {
 	static bool ReadEntireFile(const char* path, void** out_data, U32* out_size);
 
 	I32 Read(I32 size, void* buffer);
+	I32 Write(I32 size, const void* buffer);
+
 	I32 ReadAsync(Coroutine* coro, I32 size, void* buffer);
 	void Seek(I32 offset, FileSeek whence);
 	U32 Tell();
 	void Close();
 
 	operator bool() {
-		return handle != nullptr;
+		return (U32)handle != 0xFFFFFFFF;
 	}
 };
 
