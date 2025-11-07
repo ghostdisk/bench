@@ -1,8 +1,10 @@
 #pragma once
 #include <bench/common.hpp>
-#include <bench/window.hpp>
+#include <bench/string.hpp>
 
 namespace bench {
+
+struct Window;
 
 struct InitApplicationOptions {
 	String title = {};
@@ -11,8 +13,8 @@ struct InitApplicationOptions {
 bool InitApplication(const InitApplicationOptions& options);
 void BeginFrame();
 void EndFrame();
-Window GetMainWindow();
 void Quit();
 bool ShouldQuit();
+Window GetMainWindow();
 
 }

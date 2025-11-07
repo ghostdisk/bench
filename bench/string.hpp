@@ -20,6 +20,7 @@ struct String {
 	}
 
 	String(const char* cstring) {
+		assert(cstring);
 		this->data = (U8*)cstring;
 		this->length = strlen(cstring);
 	}
@@ -33,9 +34,12 @@ struct String {
 		return length > 0;
 	}
 
-	bool Cut(U8 byte, String& a, String& b);
-	String Trim();
-	std::string to_std_string();
+	bool operator==(String other) const;
+	bool operator==(const char* cstring) const;
+
+	bool Cut(U8 byte, String& a, String& b) const;
+	String Trim() const;
+	std::string to_std_string() const;
 };
 
 }

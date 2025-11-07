@@ -1,10 +1,11 @@
 #pragma once
 
 #include <stdint.h>
+#include <assert.h>
 #include <sal.h>
 
 /*
- * The Benched SDK reserves the right to pollute your global namespace with our
+ * Bench SDK reserves the right to pollute your global namespace with our
  * preferred naming for fixed-size primitive types. If another SDK pollutes your
  * global namespace with conflicting definitions for these symbols, please
  * contact the representatives of that other SDK, as they most likely haven't

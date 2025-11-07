@@ -46,22 +46,25 @@ void IniFile::SetString(String key, String value) {
 	dirty = true;
 }
 
-String IniFile::GetString(String key, String default) {
+String IniFile::GetString(String key, String fallback) {
 	auto it = this->entries.find(key.to_std_string());
-	return it != this->entries.end() ? it->second : default;
+	return it != this->entries.end() ? it->second : fallback;
+}
+
+bool IniFile::Contains(String key) {
+	auto it = this->entries.find(key.to_std_string());
+	return it != this->entries.end();
 }
 
 I32 IniFile::GetInt(String key, I32 fallback) {
 	ScratchArenaView scratch = Arena::Scratch();
 	
-	const char* value_zstr = scratch.arena.InternCString(GetString(key, "0"));
+	const char* value_zstr = scratch.arena.InternCString(GetString(key, "#"));
 	char* endptr = nullptr;
 	I32 value = strtol(value_zstr, &endptr, 10);
 
-	if (value_zstr == endptr || *endptr != '\0') {
-		this->SetInt(key, fallback);
+	if (value_zstr == endptr || *endptr != '\0')
 		return fallback;
-	}
 
 	return value;
 }
@@ -73,13 +76,27 @@ void IniFile::SetInt(String key, I32 value) {
 	this->SetString(key, value_str);
 }
 
+bool IniFile::GetBool(String key, bool fallback) {
+	String str = this->GetString(key, "");
+	if (str == "true")
+		return true;
+	else if (str == "false")
+		return false;
+	else
+		return fallback;
+}
+
+void IniFile::SetBool(String key, bool value) {
+	this->SetString(key, value ? "true" : "false");
+}
+
 static void Write(File& file, String str) {
 	file.Write(str.length, str.data);
 }
 
 void IniFile::Save() {
 	if (dirty) {
-		File out = File::Open(path.c_str(), FileFlags::WRITE, FileCreateDisposition::CREATE_NEW);
+		File out = File::Open(path.c_str(), FileFlags::WRITE, FileCreateDisposition::CREATE_ALWAYS);
 
 		for (const auto& entry : this->entries) {
 			Write(out, entry.first);
