@@ -1,6 +1,6 @@
 #pragma once
 
-#define BENCH_flags(Name, UnderlyingType, ...) \
+#define BENCH_ENUM_FLAGS(Name, UnderlyingType, ...) \
     struct Name { \
         UnderlyingType value = 0; \
         \
@@ -26,3 +26,8 @@
 	constexpr inline Name& operator|=(Name& a, Name other) { a.value |= other.value; return a; } \
 	constexpr inline Name& operator&=(Name& a, Name other) { a.value &= other.value; return a; } \
 	constexpr inline Name& operator^=(Name& a, Name other) { a.value ^= other.value; return a; } \
+
+#ifndef BENCH_NO_NONPREFIXED_MACROS
+#define ENUM_FLAGS BENCH_ENUM_FLAGS
+#endif
+

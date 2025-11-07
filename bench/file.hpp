@@ -1,6 +1,6 @@
 #pragma once
 #include <bench/common.hpp>
-#include <bench/utils/flags.hpp>
+#include <bench/utils/enum_flags.hpp>
 
 namespace bench {
 
@@ -12,7 +12,7 @@ enum class FileSeek {
 	END,
 };
 
-BENCH_flags(FileFlags, U32,
+BENCH_ENUM_FLAGS(FileFlags, U32,
 	READ   = 1,
 	WRITE  = 2,
 	ASYNC  = 4,
@@ -48,3 +48,5 @@ struct File {
 bool PollFileEvents();
 
 };
+
+#define enum_flags BENCH_enum_flags

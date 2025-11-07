@@ -14,6 +14,7 @@ static std::vector<Sleeper> g_sleepers;
 void Sleep(Coroutine* coro, double seconds) {
 	if (seconds > 0) {
 		g_sleepers.push_back({ GetTime() + seconds, coro });
+		BlockCoroutine(coro, 1);
 		Yield(coro);
 	}
 }
@@ -26,8 +27,7 @@ bool ProcessSleepingCoroutines() {
 
 	for (const Sleeper& entry : g_sleepers) {
 		if (entry.wake_time < time) {
-			woke_some = true;
-			ScheduleCoroutine(entry.coro);
+			woke_some |= UnblockCoroutine(entry.coro, 1);
 		}
 		else {
 			still_sleepy.push_back(entry);

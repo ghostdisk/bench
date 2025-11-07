@@ -16,9 +16,10 @@ struct Coroutine {
 	U32 coro_esp;
 	U32 orig_esp;
 	std::atomic<int> refcount;
+	std::atomic<int> blockers_count;
 };
 
-static std::vector<CoroutineHandle> k_scheduled_coroutines;
+static std::vector<CoroutineHandle> g_scheduled_coroutines;
 
 template <>
 void AddRef(Coroutine* coro) {
@@ -63,7 +64,7 @@ CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, 
 	// but it was never constructed, so we have to manually increment refcount:
 	coro->refcount++;
 
-	ScheduleCoroutine(coro);
+	g_scheduled_coroutines.push_back(coro);
 	return coro;
 }
 
@@ -71,13 +72,9 @@ static void CheckStackSmash(Coroutine* coro) {
 	AssertAlways(coro->stack_low[0] == 0x13371337, "Coroutine stack overflow");
 }
 
-void ScheduleCoroutine(Coroutine* coro) {
-	k_scheduled_coroutines.emplace_back(coro);
-}
-
 bool ExecScheduledCoroutines() {
-	std::vector<CoroutineHandle> coroutines = k_scheduled_coroutines;
-	k_scheduled_coroutines.clear();
+	std::vector<CoroutineHandle> coroutines = g_scheduled_coroutines;
+	g_scheduled_coroutines.clear();
 
 	// TODO!!! If we do `const CoroutineHandle&` here, MSVC generates broken code on /O2.
 	for (const CoroutineHandle& handle : coroutines) {
@@ -85,6 +82,18 @@ bool ExecScheduledCoroutines() {
 	}
 
 	return coroutines.size() > 0;
+}
+
+void BlockCoroutine(Coroutine* coro, int blockers_count) {
+	coro->blockers_count += blockers_count;
+}
+
+bool UnblockCoroutine(Coroutine* coro, int blockers_count) {
+	if ((coro->blockers_count -= blockers_count) == 0) {
+		g_scheduled_coroutines.emplace_back(coro);
+		return true;
+	}
+	return false;
 }
 
 }

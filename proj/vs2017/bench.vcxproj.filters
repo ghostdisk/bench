@@ -14,13 +14,14 @@
     <ClInclude Include="..\..\bench\utils\refhandle.hpp">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\bench\utils\flags.hpp">
+    <ClInclude Include="..\..\bench\utils\enum_flags.hpp">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\bench\utils\defer.hpp">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\bench\gamesettings.hpp" />
+    <ClInclude Include="asset.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\bench\application.cpp" />

@@ -112,7 +112,7 @@ bool PollFileEvents() {
 			had_any = true;
 			IOOperation* operation = (IOOperation*)overlapped;
 			operation->num_read = bytes;
-			ScheduleCoroutine(operation->coro);
+			UnblockCoroutine(operation->coro, 1);
 		}
 		else {
 			break;
@@ -152,6 +152,7 @@ I32 File::ReadAsync(Coroutine* coro, I32 size, void* buffer) {
 	IOOperation operation = {};
 	operation.coro = coro;
 	::ReadFile(this->handle, buffer, size, nullptr, &operation.overlapped);
+	BlockCoroutine(coro, 1);
 	Yield(coro);
 	return operation.num_read;
 }
