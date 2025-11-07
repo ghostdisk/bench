@@ -5,7 +5,6 @@
 namespace bench {
 
 struct InitApplicationOptions {
-	U32 struct_size = sizeof(InitApplicationOptions);
 	String title = {};
 };
 
@@ -13,5 +12,7 @@ bool InitApplication(const InitApplicationOptions& options);
 void BeginFrame();
 void EndFrame();
 Window GetMainWindow();
+void Quit();
+bool ShouldQuit();
 
 }

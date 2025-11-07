@@ -1,4 +1,5 @@
 #include <bench/common.hpp>
+#include <bench/application.hpp>
 #include <bench/utils/defer.hpp>
 #include <bench/arena.hpp>
 #include <bench/window.hpp>
@@ -24,6 +25,12 @@ static double g_timer_frequency = {};
 static LARGE_INTEGER g_timer_start = {};
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+	switch (msg) {
+		case WM_CLOSE: {
+			Quit();
+			return false;
+		}
+	}
     return DefWindowProcA(hwnd, msg, wparam, lparam);
 }
 

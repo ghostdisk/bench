@@ -14,7 +14,7 @@ void InitRenderer();
 void RotateScratchArenas();
 
 Window g_main_window = {};
-
+bool g_quit = false;
 
 bool InitApplication(const InitApplicationOptions& options) {
 	InitArenas();
@@ -53,6 +53,14 @@ void EndFrame() {
 
 Window GetMainWindow() {
 	return g_main_window;
+}
+
+void Quit() {
+	g_quit = true;
+}
+
+bool ShouldQuit() {
+	return g_quit;
 }
 
 }
