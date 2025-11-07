@@ -4,25 +4,25 @@
     struct Name { \
         UnderlyingType value = 0; \
         \
-        enum Bits : UnderlyingType { \
+        enum : UnderlyingType { \
             __VA_ARGS__ \
         }; \
         \
-        Name() = default; \
-        Name(UnderlyingType value) : value(value) {} \
+        constexpr Name() = default; \
+        constexpr Name(UnderlyingType value) : value(value) {} \
         \
-        explicit operator bool() const { return value != 0; } \
-        explicit operator UnderlyingType() const { return value; } \
+        explicit constexpr operator bool() const { return value != 0; } \
+        explicit constexpr operator UnderlyingType() const { return value; } \
         \
-        Name operator|(Name other) const { return Name(value | other.value); } \
-        Name operator&(Name other) const { return Name(value & other.value); } \
-        Name operator^(Name other) const { return Name(value ^ other.value); } \
-        Name operator~() const { return Name(~value); } \
-        \
-        Name& operator|=(Name other) { value |= other.value; return *this; } \
-        Name& operator&=(Name other) { value &= other.value; return *this; } \
-        Name& operator^=(Name other) { value ^= other.value; return *this; } \
-        \
-        bool operator==(Name other) const { return value == other.value; } \
-        bool operator!=(Name other) const { return value != other.value; } \
-    };
+        constexpr bool operator==(Name other) const { return value == other.value; } \
+        constexpr bool operator!=(Name other) const { return value != other.value; } \
+    }; \
+	\
+	constexpr inline Name operator|(Name a, Name other) { return Name(a.value | other.value); } \
+	constexpr inline Name operator&(Name a, Name other) { return Name(a.value & other.value); } \
+	constexpr inline Name operator^(Name a, Name other) { return Name(a.value ^ other.value); } \
+	constexpr inline Name operator~(Name a) { return Name(~a.value); } \
+	\
+	constexpr inline Name& operator|=(Name& a, Name other) { a.value |= other.value; return a; } \
+	constexpr inline Name& operator&=(Name& a, Name other) { a.value &= other.value; return a; } \
+	constexpr inline Name& operator^=(Name& a, Name other) { a.value ^= other.value; return a; } \
