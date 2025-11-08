@@ -113,6 +113,7 @@ public:
 			this->SetCapacity(m_size > 0 ? m_size * 2 : 5);
 
 		new (m_data + m_size) T(static_cast<Args&&>(args)...);
+		m_size++;
 		return m_data[m_size - 1];
 	}
 

@@ -15,7 +15,23 @@ static constexpr int COROUTINE_STACK_SIZE_DWORDS = COROUTINE_STACK_SIZE_BYTES / 
 struct Coroutine;
 using CoroutineHandle = RefHandle<Coroutine>;
 
-CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata = nullptr);
+using CoroutineProc = void (*)(CoroutineHandle coro_handle, void* userdata);
+
+CoroutineHandle CreateCoroutine(void** out_userdata_storage, CoroutineProc** out_proc_location);
+
+template <typename F>
+CoroutineHandle StartCoroutine(F&& lambda) {
+	void* userdata;
+	CoroutineProc* fnptrptr;
+	CoroutineHandle coro = CreateCoroutine(&userdata, &fnptrptr);
+	new (userdata) F(Move(lambda));
+	*fnptrptr = [](CoroutineHandle handle, void* userdata) {
+		(*((F*)userdata))(handle);
+	};
+	return coro;
+}
+
+
 bool ExecScheduledCoroutines();
 
 extern "C" void __cdecl bench_Yield(Coroutine* coro);

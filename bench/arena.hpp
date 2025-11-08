@@ -13,7 +13,7 @@ static constexpr U32 NUM_FRAME_ARENAS = 3;
 static constexpr U32 ARENA_SIZE = (1 << 20);
 
 struct String;
-struct ScratchArenaView;
+class ScratchArenaView;
 
 struct ArenaResetPoint {
 	U8* head = nullptr;

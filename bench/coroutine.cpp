@@ -33,7 +33,7 @@ void RemoveRef(Coroutine* coro) {
 	}
 }
 
-CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata) {
+CoroutineHandle CreateCoroutine(void** out_userdata_storage, CoroutineProc** out_proc_location) {
 	Coroutine* coro = new Coroutine();
 	coro->stack_low = (U32*)VirtualAlloc(nullptr, COROUTINE_STACK_SIZE_BYTES, VirtualAllocType::COMMIT, VirtualMemoryProtection::READ | VirtualMemoryProtection::WRITE);
 	coro->stack_high = coro->stack_low + COROUTINE_STACK_SIZE_DWORDS;
@@ -46,17 +46,19 @@ CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, 
 	// ------------------------------------------------------------
 	// Setup stack:
 
-	coro->stack_low[0] = 0x13371337; // stack overflow guard
 
-	*(coro->stack_high - 1) = (U32)userdata; // entry arg2
-	*(coro->stack_high - 2) = (U32)coro; // entry arg1
+	*(coro->stack_high - 1) = (U32)coro->stack_low; // entry arg2 (userdata)
+	*(coro->stack_high - 2) = (U32)coro; // entry arg1 (coroutine handle)
 	*(coro->stack_high - 3) = (U32)bench_Resume_CoroCompleted; // ret addr when coro completes
-	*(coro->stack_high - 4) = (U32)entry; // ret addr for the first Resume()
+	*(coro->stack_high - 4) = (U32)nullptr; // ret addr for the first Resume()
 	*(coro->stack_high - 5) = (U32)coro; // value of EBP after coro completes
 	// *(coro->stack_hgih - 6) = 0; // EDI
 	// *(coro->stack_hgih - 7) = 0; // ESI
 	// *(coro->stack_hgih - 8) = 0; // EBX 
 	coro->coro_esp = (U32)(coro->stack_high - 8);
+
+	*out_userdata_storage = coro->stack_low;
+	*out_proc_location = (CoroutineProc*)(coro->stack_high - 4);
 
 	// entry arg1 is of type CoroutineHandle and will decrement refcount when the coroutine completes,
 	// but it was never constructed, so we have to manually increment refcount:
