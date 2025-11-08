@@ -4,6 +4,7 @@
 
 namespace bench {
 
+struct String;
 struct Coroutine;
 
 enum class FileSeek {
@@ -29,8 +30,9 @@ enum class FileCreateDisposition {
 struct File {
 	void* handle = nullptr;
 
-	static File Open(const char* path, FileFlags flags, FileCreateDisposition mode);
-	static bool ReadEntireFile(const char* path, void** out_data, U32* out_size);
+	static File Open(String path, FileFlags flags, FileCreateDisposition mode);
+	static bool ReadEntireFile(String path, void** out_data, U32* out_size);
+	static bool ReadEntireFileAsync(Coroutine* coro, String path, void** out_data, U32* out_size);
 
 	I32 Read(I32 size, void* buffer);
 	I32 Write(I32 size, const void* buffer);

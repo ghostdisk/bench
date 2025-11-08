@@ -33,6 +33,14 @@ ScratchArenaView Arena::Scratch() {
 	return ScratchArenaView(g_scratch_arena);
 }
 
+Arena* Arena::CreateAndGetPtr() {
+	Arena arena = {};
+	arena.Init();
+	Arena* copy_onto_itself = arena.New<Arena>();
+	*copy_onto_itself = arena;
+	return copy_onto_itself;
+}
+
 Arena& Arena::FrameArena() {
 	return g_frame_arenas[g_current_frame_arena_index];
 }

@@ -5,6 +5,8 @@
 
 namespace bench {
 
+struct Writer;
+
 struct String {
 	U8* data;
 	U32 length;
@@ -41,5 +43,7 @@ struct String {
 	String Trim() const;
 	std::string to_std_string() const;
 };
+
+void Fmt(const Writer& writer, String str);
 
 }

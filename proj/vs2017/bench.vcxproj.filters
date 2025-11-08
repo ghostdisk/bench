@@ -21,7 +21,11 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\bench\gamesettings.hpp" />
-    <ClInclude Include="asset.hpp" />
+    <ClInclude Include="..\..\bench\asset.hpp" />
+    <ClInclude Include="..\..\vendor\fast_obj.h">
+      <Filter>vendor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bench\writer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\bench\application.cpp" />
@@ -33,10 +37,17 @@
     <ClCompile Include="..\..\bench\win32.cpp" />
     <ClCompile Include="..\..\bench\string.cpp" />
     <ClCompile Include="..\..\bench\arena.cpp" />
+    <ClCompile Include="..\..\bench\asset.cpp" />
+    <ClCompile Include="..\..\vendor\fast_obj.c">
+      <Filter>vendor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="utils">
       <UniqueIdentifier>{1bac3f5f-7d6a-43c7-812b-31cd11cce369}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor">
+      <UniqueIdentifier>{2c8df87b-1e41-4421-9a24-5721808c8b02}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

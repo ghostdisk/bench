@@ -121,7 +121,9 @@ bool PollFileEvents() {
 	return had_any;
 }
 
-File File::Open(const char* path, FileFlags flags, FileCreateDisposition create_disposition) {
+File File::Open(String path, FileFlags flags, FileCreateDisposition create_disposition) {
+	ScratchArenaView scratch = Arena::Scratch();
+
 	DWORD access = 0;
 	if (flags & FileFlags::READ) access |= GENERIC_READ;
 	if (flags & FileFlags::WRITE) access |= GENERIC_WRITE;
@@ -129,7 +131,7 @@ File File::Open(const char* path, FileFlags flags, FileCreateDisposition create_
 	DWORD attributes = FILE_ATTRIBUTE_NORMAL;
 	if (flags & FileFlags::ASYNC) attributes |= FILE_FLAG_OVERLAPPED;
 
-	HANDLE handle = CreateFileA(path, access, 0, nullptr, (DWORD)create_disposition, attributes, nullptr);
+	HANDLE handle = CreateFileA(scratch.arena.InternCString(path), access, 0, nullptr, (DWORD)create_disposition, attributes, nullptr);
 
 	if (flags & FileFlags::ASYNC)
 		CreateIoCompletionPort(handle, g_iocp, 0x12345678, 0);

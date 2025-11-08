@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\bench\application.hpp" />
     <ClInclude Include="..\..\bench\arena.hpp" />
+    <ClInclude Include="..\..\bench\asset.hpp" />
     <ClInclude Include="..\..\bench\common.hpp" />
     <ClInclude Include="..\..\bench\coroutine.hpp" />
     <ClInclude Include="..\..\bench\file.hpp" />
@@ -33,11 +34,13 @@
     <ClInclude Include="..\..\bench\utils\enum_flags.hpp" />
     <ClInclude Include="..\..\bench\utils\refhandle.hpp" />
     <ClInclude Include="..\..\bench\window.hpp" />
-    <ClInclude Include="asset.hpp" />
+    <ClInclude Include="..\..\bench\writer.hpp" />
+    <ClInclude Include="..\..\vendor\fast_obj.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\bench\application.cpp" />
     <ClCompile Include="..\..\bench\arena.cpp" />
+    <ClCompile Include="..\..\bench\asset.cpp" />
     <ClCompile Include="..\..\bench\coroutine.cpp" />
     <ClCompile Include="..\..\bench\file.cpp" />
     <ClCompile Include="..\..\bench\ini.cpp" />
@@ -45,6 +48,7 @@
     <ClCompile Include="..\..\bench\string.cpp" />
     <ClCompile Include="..\..\bench\time.cpp" />
     <ClCompile Include="..\..\bench\win32.cpp" />
+    <ClCompile Include="..\..\vendor\fast_obj.c" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\..\bench\coroutine_win32_x86.asm">
@@ -59,7 +63,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{698dd765-906a-4957-85e1-3371e62ca475}</ProjectGuid>
     <RootNamespace>bench</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -111,7 +115,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BENCH_WIN32;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BENCH_WIN32;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -131,7 +135,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BENCH_WIN32;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BENCH_WIN32;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -149,7 +153,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BENCH_WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BENCH_WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -169,7 +173,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>BENCH_WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BENCH_WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

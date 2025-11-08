@@ -1,4 +1,5 @@
 #include <bench/string.hpp>
+#include <bench/writer.hpp>
 
 namespace bench {
 

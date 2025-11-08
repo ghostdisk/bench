@@ -27,24 +27,34 @@ struct Arena {
 
 	void Init();
 	void Destroy();
-	void AlignHead(U32 alignment);
+
 	void* Allocate(U32 length);
 	void* Allocate(U32 length, U32 alignment);
+
+	template <typename T, typename ...Args>
+	inline T* New(Args&& ...args) {
+		void* ptr = Allocate(sizeof(T), alignof(T));
+		new (ptr) T(static_cast<Args&&>(args)...);
+		return static_cast<T*>(ptr);
+	}
+
 	ArenaResetPoint GetResetPoint();
 	void Reset(ArenaResetPoint reset_point);
 
 	String InternString(String string);
 	char* InternCString(String string);
 
+	void AlignHead(U32 alignment);
+
 	static ScratchArenaView Scratch();
 	static Arena& FrameArena();
 
-	template <typename T, typename ...Args>
-	T* New(Args&& ...args) {
-		T* ptr = (T*)Allocate(sizeof(T), alignof(T));
-		new (ptr) T(static_cast<Args&&>(...args));
-		return ptr;
-	}
+	/**
+	 * Arena::CreateAndGetPtr initializes an arena, copies the arena struct onto its own memory,
+	 * and returns that pointer.
+	 */
+	static Arena* CreateAndGetPtr();
+
 };
 
 class ScratchArenaView {
