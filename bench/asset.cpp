@@ -1,4 +1,4 @@
-#include <bench/utils/defer.hpp>
+#include <bench/defer.hpp>
 #include <bench/asset.hpp>
 #include <bench/arena.hpp>
 #include <bench/string.hpp>

@@ -1,6 +1,6 @@
 #include <bench/common.hpp>
 #include <bench/application.hpp>
-#include <bench/utils/defer.hpp>
+#include <bench/defer.hpp>
 #include <bench/arena.hpp>
 #include <bench/window.hpp>
 #include <bench/file.hpp>

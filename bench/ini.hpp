@@ -1,6 +1,6 @@
 #pragma once
 #include <bench/string.hpp>
-#include <bench/utils/arraylist.hpp>
+#include <bench/arraylist.hpp>
 
 namespace bench {
 

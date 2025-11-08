@@ -2,7 +2,7 @@
 #include <bench/ini.hpp>
 #include <bench/file.hpp>
 #include <bench/string.hpp>
-#include <bench/utils/defer.hpp>
+#include <bench/defer.hpp>
 #include <bench/gamesettings.hpp>
 #include <stdlib.h>
 #include <stdio.h>

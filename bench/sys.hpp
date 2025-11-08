@@ -1,6 +1,6 @@
 #pragma once
 #include <bench/common.hpp>
-#include <bench/utils/enum_flags.hpp>
+#include <bench/enum_flags.hpp>
 
 namespace bench {
 

@@ -11,15 +11,6 @@
     <ClInclude Include="..\..\bench\string.hpp" />
     <ClInclude Include="..\..\bench\time.hpp" />
     <ClInclude Include="..\..\bench\window.hpp" />
-    <ClInclude Include="..\..\bench\utils\refhandle.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\bench\utils\enum_flags.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\bench\utils\defer.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\bench\gamesettings.hpp" />
     <ClInclude Include="..\..\bench\asset.hpp" />
     <ClInclude Include="..\..\vendor\fast_obj.h">
@@ -27,9 +18,10 @@
     </ClInclude>
     <ClInclude Include="..\..\bench\writer.hpp" />
     <ClInclude Include="..\..\bench\sys.hpp" />
-    <ClInclude Include="..\..\bench\utils\arraylist.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
+    <ClInclude Include="..\..\bench\utils\arraylist.hpp" />
+    <ClInclude Include="..\..\bench\utils\defer.hpp" />
+    <ClInclude Include="..\..\bench\utils\enum_flags.hpp" />
+    <ClInclude Include="..\..\bench\utils\refhandle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\bench\application.cpp" />
@@ -47,9 +39,6 @@
     <ClCompile Include="..\..\bench\sys_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="utils">
-      <UniqueIdentifier>{1bac3f5f-7d6a-43c7-812b-31cd11cce369}</UniqueIdentifier>
-    </Filter>
     <Filter Include="vendor">
       <UniqueIdentifier>{2c8df87b-1e41-4421-9a24-5721808c8b02}</UniqueIdentifier>
     </Filter>
