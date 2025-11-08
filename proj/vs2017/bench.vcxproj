@@ -29,10 +29,12 @@
     <ClInclude Include="..\..\bench\ini.hpp" />
     <ClInclude Include="..\..\bench\renderer.hpp" />
     <ClInclude Include="..\..\bench\string.hpp" />
+    <ClInclude Include="..\..\bench\sys.hpp" />
     <ClInclude Include="..\..\bench\time.hpp" />
     <ClInclude Include="..\..\bench\utils\defer.hpp" />
     <ClInclude Include="..\..\bench\utils\enum_flags.hpp" />
     <ClInclude Include="..\..\bench\utils\refhandle.hpp" />
+    <ClInclude Include="..\..\bench\utils\arraylist.hpp" />
     <ClInclude Include="..\..\bench\window.hpp" />
     <ClInclude Include="..\..\bench\writer.hpp" />
     <ClInclude Include="..\..\vendor\fast_obj.h" />
@@ -46,8 +48,8 @@
     <ClCompile Include="..\..\bench\ini.cpp" />
     <ClCompile Include="..\..\bench\renderer.cpp" />
     <ClCompile Include="..\..\bench\string.cpp" />
+    <ClCompile Include="..\..\bench\sys_win32.cpp" />
     <ClCompile Include="..\..\bench\time.cpp" />
-    <ClCompile Include="..\..\bench\win32.cpp" />
     <ClCompile Include="..\..\vendor\fast_obj.c" />
   </ItemGroup>
   <ItemGroup>

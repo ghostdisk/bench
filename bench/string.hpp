@@ -1,7 +1,6 @@
 #pragma once
 #include <bench/common.hpp>
 #include <string.h>
-#include <string>
 
 namespace bench {
 
@@ -27,11 +26,6 @@ struct String {
 		this->length = strlen(cstring);
 	}
 
-	String(const std::string& std_string) {
-		this->data = (U8*)std_string.data();
-		this->length = std_string.size();
-	}
-
 	operator bool() {
 		return length > 0;
 	}
@@ -41,7 +35,9 @@ struct String {
 
 	bool Cut(U8 byte, String& a, String& b) const;
 	String Trim() const;
-	std::string to_std_string() const;
+
+	String CopyToHeap() const;
+	void FreeFromHeap();
 };
 
 void Fmt(const Writer& writer, String str);

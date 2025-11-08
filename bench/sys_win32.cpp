@@ -4,6 +4,7 @@
 #include <bench/arena.hpp>
 #include <bench/window.hpp>
 #include <bench/file.hpp>
+#include <bench/sys.hpp>
 #include <bench/coroutine.hpp>
 #include <Windows.h>
 
@@ -190,6 +191,47 @@ I32 File::Write(I32 size, const void* buffer) {
 	BOOL ok = ::WriteFile(this->handle, buffer, size, &num_written, nullptr);
 	if (ok) return (I32)num_written;
 	else return -1;
+}
+
+static U32 TranslateVirtualMemoryProtection(VirtualMemoryProtection protection) {
+	switch (protection.value) {
+		case VirtualMemoryProtection::READ: {
+			return PAGE_READONLY;
+		}
+		case VirtualMemoryProtection::READ | VirtualMemoryProtection::WRITE: {
+			return PAGE_READWRITE;
+		}
+		case VirtualMemoryProtection::READ | VirtualMemoryProtection::EXECUTE: {
+			return PAGE_EXECUTE_READ;
+		}
+		case VirtualMemoryProtection::READ | VirtualMemoryProtection::WRITE | VirtualMemoryProtection::EXECUTE: {
+			return PAGE_EXECUTE_READWRITE;
+		}
+		default: {
+			return PAGE_NOACCESS;
+		}
+	}
+}
+
+void* VirtualAlloc(void* address, U32 size, VirtualAllocType type, VirtualMemoryProtection protection) {
+	U32 win32_protection = TranslateVirtualMemoryProtection(protection);
+
+	U32 win32_type = 0;
+	switch (type) {
+		case VirtualAllocType::RESERVE: win32_type = MEM_RESERVE; break;
+		case VirtualAllocType::COMMIT: win32_type = MEM_COMMIT; break;
+	}
+
+	return ::VirtualAlloc(address, size, win32_type, win32_protection);
+}
+
+void VirtualFree(void* address, U32 size, VirtualFreeType type) {
+	U32 win32_type = 0;
+	switch (type) {
+		case VirtualFreeType::DECOMMIT: win32_type = MEM_DECOMMIT; break;
+		case VirtualFreeType::RELEASE: win32_type = MEM_RELEASE; break;
+	}
+	::VirtualFree(address, size, win32_type);
 }
 
 }

@@ -1,5 +1,6 @@
 #include <bench/string.hpp>
 #include <bench/writer.hpp>
+#include <stdlib.h>
 
 namespace bench {
 
@@ -50,8 +51,15 @@ String String::Trim() const {
 		return String(data + start, end - start + 1);
 }
 
-std::string String::to_std_string() const {
-	return std::string((const char*)this->data, length);
+String String::CopyToHeap() const {
+	U8* copy_data = (U8*)malloc(length);
+	memcpy(copy_data, data, length);
+	return String(copy_data, length);
+}
+
+void String::FreeFromHeap() {
+	free(data);
+	*this = {};
 }
 
 }

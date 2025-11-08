@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-  <Type Name="bench::String">
-    <DisplayString>[{length}] {data,[length]sb}</DisplayString>
-    <Expand>
-      <Item Name="Length">length</Item>
-      <Item Name="Text">data,[length]sb</Item>
-    </Expand>
-  </Type>
+<Type Name="bench::String">
+	<DisplayString>[{length}] {data,[length]sb}</DisplayString>
+	<Expand>
+		<Item Name="Length">length</Item>
+		<Item Name="Text">data,[length]sb</Item>
+	</Expand>
+</Type>
+
+<Type Name="bench::ArrayList&lt;*&gt;">
+	<DisplayString>size={m_size}, capacity={m_capacity}</DisplayString>
+	<Expand>
+		<Item Name="Size">m_size</Item>
+		<Item Name="Capacity">m_capacity</Item>
+		<ArrayItems>
+			<Size>m_size</Size>
+			<ValuePointer>m_data</ValuePointer>
+		</ArrayItems>
+	</Expand>
+</Type>
 
 </AutoVisualizer>

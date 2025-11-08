@@ -13,6 +13,7 @@ void LoadAsset(String path) {
 		Arena* arena;
 	};
 
+	/*`
 	Arena* arena = Arena::CreateAndGetPtr();
 	Args* args = arena->New<Args>();
 	args->arena = arena;
@@ -28,6 +29,7 @@ void LoadAsset(String path) {
 		int t = 3;
 
 	}, args);
+	*/
 }
 
 }

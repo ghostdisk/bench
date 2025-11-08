@@ -1,6 +1,6 @@
 #include <bench/time.hpp>
 #include <bench/coroutine.hpp>
-#include <vector>
+#include <bench/utils/arraylist.hpp>
 
 namespace bench {
 
@@ -9,11 +9,11 @@ struct Sleeper {
 	CoroutineHandle coro = {};
 };
 
-static std::vector<Sleeper> g_sleepers;
+static ArrayList<Sleeper> g_sleepers;
 
 void Sleep(Coroutine* coro, double seconds) {
 	if (seconds > 0) {
-		g_sleepers.push_back({ GetTime() + seconds, coro });
+		g_sleepers.Push({ GetTime() + seconds, coro });
 		BlockCoroutine(coro, 1);
 		Yield(coro);
 	}
@@ -22,7 +22,7 @@ void Sleep(Coroutine* coro, double seconds) {
 bool ProcessSleepingCoroutines() {
 	double time = GetTime();
 
-	std::vector<Sleeper> still_sleepy;
+	ArrayList<Sleeper> still_sleepy;
 	bool woke_some = false;
 
 	for (const Sleeper& entry : g_sleepers) {
@@ -30,7 +30,7 @@ bool ProcessSleepingCoroutines() {
 			woke_some |= UnblockCoroutine(entry.coro, 1);
 		}
 		else {
-			still_sleepy.push_back(entry);
+			still_sleepy.Push(entry);
 		}
 	}
 

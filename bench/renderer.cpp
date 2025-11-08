@@ -45,7 +45,7 @@ D3DDISPLAYMODE GetDisplayModeFromSettings() {
 		return mode;
 	}
 
-	std::vector<D3DFORMAT> present_formats = {
+	ArrayList<D3DFORMAT> present_formats = {
 		D3DFMT_A2R10G10B10,
 		D3DFMT_A8R8G8B8,
 		D3DFMT_X8R8G8B8,

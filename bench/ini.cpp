@@ -4,6 +4,8 @@
 #include <bench/string.hpp>
 #include <bench/utils/defer.hpp>
 #include <bench/gamesettings.hpp>
+#include <stdlib.h>
+#include <stdio.h>
 
 namespace bench {
 
@@ -15,7 +17,7 @@ IniFile& GameSettings() {
 
 IniFile IniFile::Load(const char* path) {
 	IniFile ini = {};
-	ini.path = path;
+	ini.path = String(path).CopyToHeap();
 
 	void* file_data;
 	U32 file_size;
@@ -42,18 +44,31 @@ IniFile IniFile::Load(const char* path) {
 }
 
 void IniFile::SetString(String key, String value) {
-	this->entries[key.to_std_string()] = value.to_std_string();
-	dirty = true;
+	for (IniFileEntry& entry : entries) {
+		if (entry.key == key) {
+			entry.value.FreeFromHeap();
+			entry.value = value.CopyToHeap();
+			return;
+		}
+	}
+
+	entries.Push({ key.CopyToHeap(), value.CopyToHeap() });
 }
 
 String IniFile::GetString(String key, String fallback) {
-	auto it = this->entries.find(key.to_std_string());
-	return it != this->entries.end() ? it->second : fallback;
+	for (const IniFileEntry& entry : entries) {
+		if (entry.key == key)
+			return entry.value;
+	}
+	return fallback;
 }
 
 bool IniFile::Contains(String key) {
-	auto it = this->entries.find(key.to_std_string());
-	return it != this->entries.end();
+	for (const IniFileEntry& entry : entries) {
+		if (entry.key == key)
+			return true;
+	}
+	return false;
 }
 
 I32 IniFile::GetInt(String key, I32 fallback) {
@@ -96,12 +111,12 @@ static void Write(File& file, String str) {
 
 void IniFile::Save() {
 	if (dirty) {
-		File out = File::Open(path.c_str(), FileFlags::WRITE, FileCreateDisposition::CREATE_ALWAYS);
+		File out = File::Open(path, FileFlags::WRITE, FileCreateDisposition::CREATE_ALWAYS);
 
-		for (const auto& entry : this->entries) {
-			Write(out, entry.first);
+		for (const IniFileEntry& entry : this->entries) {
+			Write(out, entry.key);
 			Write(out, " = ");
-			Write(out, entry.second);
+			Write(out, entry.value);
 			Write(out, "\n");
 		}
 

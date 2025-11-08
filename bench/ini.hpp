@@ -1,16 +1,23 @@
 #pragma once
 #include <bench/string.hpp>
-#include <unordered_map>
+#include <bench/utils/arraylist.hpp>
 
 namespace bench {
 
-struct IniFile {
-	std::string path;
-	std::unordered_map<std::string, std::string> entries;
+struct IniFileEntry {
+	String key;
+	String value;
+};
+
+class IniFile {
+	ArrayList<IniFileEntry> entries;
+public:
+	String path;
 	bool dirty = false;
 
 	static IniFile Load(const char* path);
 	void Save();
+	void Destroy();
 
 	bool Contains(String key);
 

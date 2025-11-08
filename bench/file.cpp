@@ -3,9 +3,6 @@
 #include <bench/coroutine.hpp>
 #include <stdlib.h>
 
-#include <windows.h>
-#undef OPEN_EXISTING
-
 namespace bench {
 
 bool File::ReadEntireFile(String path, void** out_data, U32* out_size) {

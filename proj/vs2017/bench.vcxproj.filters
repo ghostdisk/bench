@@ -26,6 +26,10 @@
       <Filter>vendor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\bench\writer.hpp" />
+    <ClInclude Include="..\..\bench\sys.hpp" />
+    <ClInclude Include="..\..\bench\utils\arraylist.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\bench\application.cpp" />
@@ -34,13 +38,13 @@
     <ClCompile Include="..\..\bench\ini.cpp" />
     <ClCompile Include="..\..\bench\renderer.cpp" />
     <ClCompile Include="..\..\bench\time.cpp" />
-    <ClCompile Include="..\..\bench\win32.cpp" />
     <ClCompile Include="..\..\bench\string.cpp" />
     <ClCompile Include="..\..\bench\arena.cpp" />
     <ClCompile Include="..\..\bench\asset.cpp" />
     <ClCompile Include="..\..\vendor\fast_obj.c">
       <Filter>vendor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\bench\sys_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="utils">

@@ -1,10 +1,9 @@
 #pragma once
 #include <bench/coroutine.hpp>
+#include <bench/sys.hpp>
+#include <bench/utils/arraylist.hpp>
 #include <stdlib.h>
-#include <Windows.h>
 #include <atomic>
-#include <vector>
-#undef Yield // windows...
 
 namespace bench {
 
@@ -19,7 +18,7 @@ struct Coroutine {
 	std::atomic<int> blockers_count;
 };
 
-static std::vector<CoroutineHandle> g_scheduled_coroutines;
+static ArrayList<CoroutineHandle> g_scheduled_coroutines;
 
 template <>
 void AddRef(Coroutine* coro) {
@@ -29,15 +28,14 @@ void AddRef(Coroutine* coro) {
 template <>
 void RemoveRef(Coroutine* coro) {
 	if (--coro->refcount == 0) {
-		VirtualFree(coro->stack_low, 0, MEM_RELEASE);
+		VirtualFree(coro->stack_low, COROUTINE_STACK_SIZE_BYTES, VirtualFreeType::RELEASE);
 		delete coro;
 	}
 }
 
 CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, void* userdata), void* userdata) {
 	Coroutine* coro = new Coroutine();
-
-	coro->stack_low = (U32*)VirtualAlloc(0, COROUTINE_STACK_SIZE_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	coro->stack_low = (U32*)VirtualAlloc(nullptr, COROUTINE_STACK_SIZE_BYTES, VirtualAllocType::COMMIT, VirtualMemoryProtection::READ | VirtualMemoryProtection::WRITE);
 	coro->stack_high = coro->stack_low + COROUTINE_STACK_SIZE_DWORDS;
 	AssertAlways(coro->stack_low, "Out of memory");
 
@@ -64,7 +62,7 @@ CoroutineHandle StartCoroutine(void (BENCHCOROAPI *entry)(CoroutineHandle coro, 
 	// but it was never constructed, so we have to manually increment refcount:
 	coro->refcount++;
 
-	g_scheduled_coroutines.push_back(coro);
+	g_scheduled_coroutines.Push(coro);
 	return coro;
 }
 
@@ -73,15 +71,14 @@ static void CheckStackSmash(Coroutine* coro) {
 }
 
 bool ExecScheduledCoroutines() {
-	std::vector<CoroutineHandle> coroutines = g_scheduled_coroutines;
-	g_scheduled_coroutines.clear();
+	ArrayList<CoroutineHandle> coroutines = Move(g_scheduled_coroutines);
 
 	// TODO!!! If we do `const CoroutineHandle&` here, MSVC generates broken code on /O2.
 	for (const CoroutineHandle& handle : coroutines) {
 		ResumeCoroutine(handle);
 	}
 
-	return coroutines.size() > 0;
+	return coroutines.m_size > 0;
 }
 
 void BlockCoroutine(Coroutine* coro, int blockers_count) {
@@ -90,7 +87,7 @@ void BlockCoroutine(Coroutine* coro, int blockers_count) {
 
 bool UnblockCoroutine(Coroutine* coro, int blockers_count) {
 	if ((coro->blockers_count -= blockers_count) == 0) {
-		g_scheduled_coroutines.emplace_back(coro);
+		g_scheduled_coroutines.Emplace(coro);
 		return true;
 	}
 	return false;
