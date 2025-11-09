@@ -11,6 +11,9 @@ void LoadAsset(String path) {
 	path = path.CopyToHeap();
 
 	StartCoroutine([=](CoroutineHandle coro) {
+		ScratchArenaView scratch = Arena::Scratch();
+
+
 		void* data;
 		size_t size;
 		File::ReadEntireFileAsync(coro, path, &data, &size);

@@ -6,9 +6,13 @@
 
 namespace bench {
 
-static constexpr int COROUTINE_STACK_SIZE = (1 << 20);
+// TODO: Investigate why printf on Windows XP fails with 8KB coro stack size, but succeeds on Windows 10.
+//       I find it hard to believe that the XP version uses *less* stack space.
+//       Additionally, the CRT is statically linked so, so the majority of the code executed should be 1:1.
+static constexpr int COROUTINE_STACK_SIZE = (16 << 10);
 
 struct Coroutine;
+
 using CoroutineHandle = RefHandle<Coroutine>;
 
 using CoroutineProc = void (*)(CoroutineHandle coro_handle, void* userdata);

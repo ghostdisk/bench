@@ -65,9 +65,7 @@ CoroutineHandle CreateCoroutine(void** out_userdata_storage, CoroutineProc** out
 	Coroutine* coro = nullptr;
 	
 	coro = g_coro_pool.Pop();
-	if (coro) {
-	}
-	else {
+	if (!coro) {
 		constexpr int COROUTINE_STACK_SIZE_WITH_GUARD_PAGE = COROUTINE_STACK_SIZE + 4096;
 
 		U8* reserve_start = (U8*)VirtualAlloc(nullptr, COROUTINE_STACK_SIZE_WITH_GUARD_PAGE, VirtualAllocType::RESERVE, 0);
