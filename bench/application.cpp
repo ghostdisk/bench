@@ -1,7 +1,7 @@
 #include <bench/application.hpp>
-#include <bench/arena.hpp>
-#include <bench/file.hpp>
-#include <bench/time.hpp>
+#include <bench/core/arena.hpp>
+#include <bench/core/file.hpp>
+#include <bench/core/time.hpp>
 #include <bench/window.hpp>
 #include <bench/coroutine.hpp>
 #include <bench/gamesettings.hpp>

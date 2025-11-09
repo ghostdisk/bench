@@ -1,6 +1,6 @@
 #pragma once
-#include <bench/writer.hpp>
-#include <bench/arena.hpp>
+#include <bench/core/arena.hpp>
+#include <bench/core/writer.hpp>
 
 namespace bench {
 

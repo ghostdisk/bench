@@ -1,9 +1,8 @@
-#include <bench/arena.hpp>
-#include <bench/ini.hpp>
-#include <bench/file.hpp>
-#include <bench/string.hpp>
-#include <bench/defer.hpp>
+#include <bench/core/arena.hpp>
+#include <bench/core/file.hpp>
+#include <bench/core/string.hpp>
 #include <bench/gamesettings.hpp>
+#include <bench/ini.hpp>
 #include <stdlib.h>
 #include <stdio.h>
 

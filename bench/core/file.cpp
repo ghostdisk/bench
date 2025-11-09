@@ -1,7 +1,7 @@
-#include <bench/file.hpp>
-#include <bench/string.hpp>
+#include <bench/core/file.hpp>
+#include <bench/core/string.hpp>
+#include <bench/core/writer.hpp>
 #include <bench/coroutine.hpp>
-#include <bench/writer.hpp>
 #include <stdlib.h>
 
 namespace bench {

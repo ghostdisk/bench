@@ -1,9 +1,8 @@
-#include <bench/common.hpp>
+#include <bench/core/common.hpp>
 #include <bench/application.hpp>
-#include <bench/defer.hpp>
-#include <bench/arena.hpp>
+#include <bench/core/arena.hpp>
+#include <bench/core/file.hpp>
 #include <bench/window.hpp>
-#include <bench/file.hpp>
 #include <bench/sys.hpp>
 #include <bench/coroutine.hpp>
 #include <Windows.h>

@@ -1,6 +1,6 @@
 #pragma once
-#include <bench/common.hpp>
-#include <bench/string.hpp>
+#include <bench/core/common.hpp>
+#include <bench/core/string.hpp>
 
 namespace bench {
 

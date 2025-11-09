@@ -1,5 +1,5 @@
 #pragma once
-#include <bench/string.hpp>
+#include <bench/core/string.hpp>
 #include <bench/arraylist.hpp>
 
 namespace bench {

@@ -1,9 +1,9 @@
+#include <bench/core/arena.hpp>
+#include <bench/core/format.hpp>
+#include <bench/core/string.hpp>
+#include <bench/core/file.hpp>
 #include <bench/asset.hpp>
-#include <bench/string.hpp>
 #include <bench/coroutine.hpp>
-#include <bench/file.hpp>
-#include <bench/arena.hpp>
-#include <bench/format.hpp>
 #include <bench/arraylist.hpp>
 
 namespace bench {

@@ -1,5 +1,5 @@
 #pragma once
-#include <bench/string.hpp>
+#include <bench/core/string.hpp>
 
 typedef struct HWND__* HWND;
 typedef struct HINSTANCE__* HINSTANCE;

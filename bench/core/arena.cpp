@@ -1,5 +1,5 @@
-#include <bench/arena.hpp>
-#include <bench/string.hpp>
+#include <bench/core/arena.hpp>
+#include <bench/core/string.hpp>
 #include <stdlib.h>
 
 namespace bench {

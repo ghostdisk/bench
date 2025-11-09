@@ -1,6 +1,6 @@
 #pragma once
-#include <bench/common.hpp>
-#include <bench/refhandle.hpp>
+#include <bench/core/common.hpp>
+#include <bench/core/refhandle.hpp>
 
 #define BENCHCOROAPI __cdecl
 

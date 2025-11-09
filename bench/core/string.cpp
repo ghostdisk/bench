@@ -1,5 +1,5 @@
-#include <bench/string.hpp>
-#include <bench/writer.hpp>
+#include <bench/core/string.hpp>
+#include <bench/core/writer.hpp>
 #include <stdlib.h>
 
 namespace bench {
