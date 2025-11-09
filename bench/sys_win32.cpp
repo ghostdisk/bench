@@ -231,7 +231,7 @@ void VirtualFree(void* address, U32 size, VirtualFreeType type) {
 		case VirtualFreeType::DECOMMIT: win32_type = MEM_DECOMMIT; break;
 		case VirtualFreeType::RELEASE: win32_type = MEM_RELEASE; break;
 	}
-	::VirtualFree(address, size, win32_type);
+	::VirtualFree(address, 0, win32_type);
 }
 
 }

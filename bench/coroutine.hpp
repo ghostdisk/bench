@@ -6,9 +6,6 @@
 
 namespace bench {
 
-struct Coroutine;
-
-
 static constexpr int COROUTINE_STACK_SIZE_BYTES = (1 << 20);
 static constexpr int COROUTINE_STACK_SIZE_DWORDS = COROUTINE_STACK_SIZE_BYTES / 4;
 
