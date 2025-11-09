@@ -105,7 +105,7 @@ void InitRenderer() {
 	D3DPRESENT_PARAMETERS present_parameters = {};
 	present_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-	if (GameSettings().GetInt("fullscreen", 1) == 1) {
+	if (GameSettings().GetInt("fullscreen", 0) == 1) {
 		D3DDISPLAYMODE mode = GetDisplayModeFromSettings();
 		UpdateSettingsFromDisplayMode(mode);
 
