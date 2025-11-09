@@ -9,67 +9,45 @@ namespace bench {
 
 extern "C" bool __cdecl bench_Resume_CoroCompleted(bench::Coroutine* coro);
 
-struct CoroutineStack {
-	std::atomic<CoroutineStack*> next_stack = nullptr;
-	U32* low;
-	U32* high;
-};
 
 struct Coroutine {
-	CoroutineStack* stack = nullptr;
-	void* pad0 = nullptr;
+	U8* reserve_start;
+	U32* stack_end;
 	U32 coro_esp;
 	U32 orig_esp;
 	std::atomic<int> refcount;
 	std::atomic<int> blockers_count;
+	std::atomic<Coroutine*> next_in_pool = nullptr;
 };
 
-struct StackPool {
-	std::atomic<CoroutineStack*> first_free = nullptr;
+struct CoroutinePool {
+	std::atomic<Coroutine*> first_free = nullptr;
 	std::atomic<int> count = 0;
 
-	CoroutineStack* Pop() {
-		CoroutineStack* stack = nullptr;
+	Coroutine* Pop() {
+		Coroutine* stack = nullptr;
 		do {
 			stack = first_free;
 			if (!first_free)
 				return nullptr;
-		} while (!first_free.compare_exchange_weak(stack, stack->next_stack));
+		} while (!first_free.compare_exchange_weak(stack, stack->next_in_pool));
 
 		count--;
 		return stack;
 	}
 
-	void Push(CoroutineStack* new_stack) {
+	void Push(Coroutine* new_coro) {
 		count++;
-		CoroutineStack* old_first_free = nullptr;
+		Coroutine* old_first_free = nullptr;
 		do {
 			old_first_free = this->first_free.load();
-			new_stack->next_stack = old_first_free;
-		} while (!first_free.compare_exchange_weak(old_first_free, new_stack));
+			new_coro->next_in_pool = old_first_free;
+		} while (!first_free.compare_exchange_weak(old_first_free, new_coro));
 	}
 };
 
 static ArrayList<CoroutineHandle> g_scheduled_coroutines;
-static StackPool g_stack_pool;
-
-CoroutineStack* AcquireStack() {
-	CoroutineStack* from_pool = g_stack_pool.Pop();
-	if (from_pool) {
-		return from_pool;
-	}
-	else {
-		CoroutineStack* stack = new CoroutineStack();
-
-		stack->low = (U32*)VirtualAlloc(nullptr, COROUTINE_STACK_SIZE_BYTES, VirtualAllocType::COMMIT, VirtualMemoryProtection::READ | VirtualMemoryProtection::WRITE);
-		stack->high = stack->low + COROUTINE_STACK_SIZE_DWORDS;
-		return stack;
-	}
-}
-
-void ReleaseStack(CoroutineStack* stack) {
-	g_stack_pool.Push(stack);
-}
+static CoroutinePool g_coro_pool;
 
 template <>
 void AddRef(Coroutine* coro) {
@@ -79,49 +57,57 @@ void AddRef(Coroutine* coro) {
 template <>
 void RemoveRef(Coroutine* coro) {
 	if (--coro->refcount == 0) {
-		ReleaseStack(coro->stack);
-		delete coro;
+		g_coro_pool.Push(coro);
 	}
 }
 
-
 CoroutineHandle CreateCoroutine(void** out_userdata_storage, CoroutineProc** out_proc_location) {
-	Coroutine* coro = new Coroutine();
-	CoroutineStack* stack = AcquireStack();
-	coro->stack = stack;
+	Coroutine* coro = nullptr;
+	
+	coro = g_coro_pool.Pop();
+	if (coro) {
+	}
+	else {
+		constexpr int COROUTINE_STACK_SIZE_WITH_GUARD_PAGE = COROUTINE_STACK_SIZE + 4096;
 
-#ifdef BENCH_DEBUG
-	memset(coro->stack_low, 0x14, COROUTINE_STACK_SIZE_BYTES);
-#endif
+		U8* reserve_start = (U8*)VirtualAlloc(nullptr, COROUTINE_STACK_SIZE_WITH_GUARD_PAGE, VirtualAllocType::RESERVE, 0);
+		U8* commit_start = reserve_start + 4096;
+		U8* commit_end = reserve_start + COROUTINE_STACK_SIZE_WITH_GUARD_PAGE;
 
-	// ------------------------------------------------------------
-	// Setup stack:
+		void* commit_start_2 = VirtualAlloc(commit_start, COROUTINE_STACK_SIZE, VirtualAllocType::COMMIT, VirtualMemoryProtection::READ | VirtualMemoryProtection::WRITE);
+		AssertAlways(commit_start_2, "Out of memory");
 
-	*(stack->high - 1) = (U32)stack->low;                 // entry arg2 (userdata)
-	*(stack->high - 2) = (U32)coro;                       // entry arg1 (coroutine handle)
-	*(stack->high - 3) = (U32)bench_Resume_CoroCompleted; // ret addr when coro completes
-	*(stack->high - 4) = (U32)nullptr;                    // ret addr for the first Resume()
-	*(stack->high - 5) = (U32)coro;                       // EBP save slot/value of EBP after coro completes
-	// *(stack->high - 6) = 0;                            // EDI save slot
-	// *(stack->high - 7) = 0;                            // ESI save slot
-	// *(stack->high - 8) = 0;                            // EBX save slot
-	coro->coro_esp = (U32)(stack->high - 8);
-
-	*out_userdata_storage = stack->low;
-	*out_proc_location = (CoroutineProc*)(stack->high - 4);
+		coro = (Coroutine*)(commit_end - sizeof(Coroutine));
+		coro->reserve_start = reserve_start;
+		coro->stack_end = (U32*)coro;
+	}
 
 	// entry arg1 is of type CoroutineHandle and will decrement refcount when the coroutine completes,
 	// but it was never constructed, so we have to manually increment refcount:
-	coro->refcount++;
+	coro->refcount = 1;
+	coro->blockers_count = 0;
 
-	// g_scheduled_coroutines.Push(coro);
+	// Setup stack:
+	*(coro->stack_end - 1) = (U32)coro->reserve_start + 4096;   // entry arg2 (userdata)
+	*(coro->stack_end - 2) = (U32)coro;                         // entry arg1 (coroutine handle)
+	*(coro->stack_end - 3) = (U32)bench_Resume_CoroCompleted;   // ret addr when coro completes
+	// *(coro->stack_end - 4) = (U32)nullptr;                   // ret addr for the first Resume()
+	*(coro->stack_end - 5) = (U32)coro;                         // EBP save slot/value of EBP after coro completes
+	// *(stack->stack_end - 6) = 0;                             // EDI save slot
+	// *(stack->stack_end - 7) = 0;                             // ESI save slot
+	// *(stack->stack_end - 8) = 0;                             // EBX save slot
+	coro->coro_esp = (U32)(coro->stack_end - 8);
+
+	*out_userdata_storage = coro->reserve_start + 4096;
+	*out_proc_location = (CoroutineProc*)(coro->stack_end - 4);
+
+	g_scheduled_coroutines.Push(coro);
 	return coro;
 }
 
 bool ExecScheduledCoroutines() {
 	ArrayList<CoroutineHandle> coroutines = Move(g_scheduled_coroutines);
 
-	// TODO!!! If we do `const CoroutineHandle&` here, MSVC generates broken code on /O2.
 	for (const CoroutineHandle& handle : coroutines) {
 		ResumeCoroutine(handle);
 	}

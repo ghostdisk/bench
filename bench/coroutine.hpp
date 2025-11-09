@@ -6,8 +6,7 @@
 
 namespace bench {
 
-static constexpr int COROUTINE_STACK_SIZE_BYTES = (1 << 20);
-static constexpr int COROUTINE_STACK_SIZE_DWORDS = COROUTINE_STACK_SIZE_BYTES / 4;
+static constexpr int COROUTINE_STACK_SIZE = (1 << 20);
 
 struct Coroutine;
 using CoroutineHandle = RefHandle<Coroutine>;
@@ -17,7 +16,7 @@ using CoroutineProc = void (*)(CoroutineHandle coro_handle, void* userdata);
 CoroutineHandle CreateCoroutine(void** out_userdata_storage, CoroutineProc** out_proc_location);
 
 template <typename F>
-CoroutineHandle StartCoroutine(F&& lambda) {
+inline CoroutineHandle StartCoroutine(F&& lambda) {
 	void* userdata;
 	CoroutineProc* fnptrptr;
 	CoroutineHandle coro = CreateCoroutine(&userdata, &fnptrptr);
