@@ -13,6 +13,7 @@ static constexpr int COROUTINE_STACK_SIZE = (16 << 10);
 
 struct Coroutine;
 
+
 using CoroutineHandle = RefHandle<Coroutine>;
 
 using CoroutineProc = void (*)(CoroutineHandle coro_handle, void* userdata);
@@ -38,7 +39,9 @@ extern "C" void __cdecl bench_Yield(Coroutine* coro);
 extern "C" bool __cdecl bench_ResumeCoroutine(Coroutine* coro);
 
 void BlockCoroutine(Coroutine* coro, int blockers_count);
+void UnblockCurrentCoroutine(Coroutine* coro, int blockers_count);
 bool UnblockCoroutine(Coroutine* coro, int blockers_count);
+
 
 inline void Yield(bench::Coroutine* coro) {
 	bench_Yield(coro);

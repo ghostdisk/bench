@@ -99,5 +99,4 @@ char* Arena::InternCString(String string) {
 	return (char*)buffer;
 }
 
-
 }

@@ -17,6 +17,10 @@ public:
 		this->data = nullptr;
 	}
 
+	RefHandle(std::nullptr_t _) {
+		this->data = nullptr;
+	}
+
 	RefHandle(T* data) {
 		this->data = data;
 		AddRef(this->data);

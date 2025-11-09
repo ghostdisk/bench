@@ -117,6 +117,10 @@ void BlockCoroutine(Coroutine* coro, int blockers_count) {
 	coro->blockers_count += blockers_count;
 }
 
+void UnblockCurrentCoroutine(Coroutine* coro, int blockers_count) {
+	coro->blockers_count -= blockers_count;
+}
+
 bool UnblockCoroutine(Coroutine* coro, int blockers_count) {
 	if ((coro->blockers_count -= blockers_count) == 0) {
 		g_scheduled_coroutines.Emplace(coro);

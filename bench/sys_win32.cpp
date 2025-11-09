@@ -157,11 +157,18 @@ I32 File::Read(I32 size, void* buffer) {
 
 I32 File::ReadAsync(Coroutine* coro, I32 size, void* buffer) {
 	IOOperation operation = {};
-	operation.coro = coro;
-	::ReadFile(this->handle, buffer, size, nullptr, &operation.overlapped);
 	BlockCoroutine(coro, 1);
-	Yield(coro);
-	return operation.num_read;
+	operation.coro = coro;
+	DWORD num_read = 0;
+	BOOL was_sync_read = ::ReadFile(this->handle, buffer, size, &num_read, &operation.overlapped);
+	if (was_sync_read) {
+		UnblockCurrentCoroutine(coro, 1);
+		return (I32)num_read;
+	}
+	else {
+		Yield(coro);
+		return operation.num_read;
+	}
 }
 
 double GetTime() {

@@ -1,8 +1,17 @@
-#include <bench/writer.hpp>
 #include <bench/string.hpp>
+#include <bench/format.hpp>
 #include <stdio.h>
 
 namespace bench {
+
+WriterVTable g_arena_writer_vtable = {
+	[](void* userdata, const void* buffer, I32 size) {
+		ArenaFormatContext* context = (ArenaFormatContext*)userdata;
+		void* head = context->arena->Allocate(size);
+		memcpy(head, buffer, size);
+        return size;
+	},
+};
 
 void Format1(const Writer& writer, const U64& value) {
     char buffer[20];
