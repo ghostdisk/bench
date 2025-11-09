@@ -57,6 +57,10 @@ void InitWin32() {
 	LARGE_INTEGER timer_frequency_int;
 	QueryPerformanceFrequency(&timer_frequency_int);
 	g_timer_frequency = double(timer_frequency_int.QuadPart);
+
+	File::StdIn.handle = GetStdHandle(STD_INPUT_HANDLE);
+	File::StdOut.handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	File::StdErr.handle = GetStdHandle(STD_ERROR_HANDLE);
 }
 
 _When_(!condition, _Analysis_noreturn_)

@@ -1,9 +1,14 @@
 #include <bench/file.hpp>
 #include <bench/string.hpp>
 #include <bench/coroutine.hpp>
+#include <bench/writer.hpp>
 #include <stdlib.h>
 
 namespace bench {
+
+File File::StdIn;
+File File::StdOut;
+File File::StdErr;
 
 bool File::ReadEntireFile(String path, void** out_data, U32* out_size) {
 	*out_data = nullptr;
@@ -51,6 +56,16 @@ bool File::ReadEntireFileAsync(Coroutine* coro, String path, void** out_data, U3
 	if (out_size) *out_size = size;
 
 	return true;
+}
+
+File::operator Writer() const {
+	static WriterVTable writer_vtable = {
+		[](void* userdata, const void* buffer, I32 size) {
+			File* file = (File*)userdata;
+			return file->Write((I32)size, buffer);
+		},
+	};
+	return Writer{ &writer_vtable, (void*)this };
 }
 
 }

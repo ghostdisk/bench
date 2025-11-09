@@ -45,6 +45,7 @@
     <ClCompile Include="..\..\bench\asset.cpp" />
     <ClCompile Include="..\..\bench\coroutine.cpp" />
     <ClCompile Include="..\..\bench\file.cpp" />
+    <ClCompile Include="..\..\bench\format.cpp" />
     <ClCompile Include="..\..\bench\ini.cpp" />
     <ClCompile Include="..\..\bench\renderer.cpp" />
     <ClCompile Include="..\..\bench\string.cpp" />

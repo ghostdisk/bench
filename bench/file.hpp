@@ -6,6 +6,7 @@ namespace bench {
 
 struct String;
 struct Coroutine;
+struct Writer;
 
 enum class FileSeek {
 	START,
@@ -45,6 +46,12 @@ struct File {
 	operator bool() {
 		return (U32)handle != 0xFFFFFFFF;
 	}
+
+	operator Writer() const;
+
+	static File StdIn;
+	static File StdOut;
+	static File StdErr;
 };
 
 bool PollFileEvents();

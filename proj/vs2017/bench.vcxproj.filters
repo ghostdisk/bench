@@ -37,6 +37,7 @@
       <Filter>vendor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\bench\sys_win32.cpp" />
+    <ClCompile Include="..\..\bench\format.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="vendor">
