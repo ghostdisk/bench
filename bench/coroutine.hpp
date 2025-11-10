@@ -13,6 +13,9 @@ static constexpr int COROUTINE_STACK_SIZE = (16 << 10);
 
 struct Coroutine;
 
+struct Fence {
+	U32 value = 0;
+};
 
 using CoroutineHandle = RefHandle<Coroutine>;
 
@@ -32,23 +35,21 @@ inline CoroutineHandle StartCoroutine(F&& lambda) {
 	return coro;
 }
 
-
 bool ExecScheduledCoroutines();
 
-extern "C" void __cdecl bench_Yield(Coroutine* coro);
-extern "C" bool __cdecl bench_ResumeCoroutine(Coroutine* coro);
 
 void BlockCoroutine(Coroutine* coro, int blockers_count);
+
 void UnblockCurrentCoroutine(Coroutine* coro, int blockers_count);
+
 bool UnblockCoroutine(Coroutine* coro, int blockers_count);
 
+Fence CreateFence();
 
-inline void Yield(bench::Coroutine* coro) {
-	bench_Yield(coro);
-}
+void SignalFence(Fence fence);
 
-inline bool ResumeCoroutine(bench::Coroutine* coro) {
-	return bench_ResumeCoroutine(coro);
-}
+void WaitForFence(Coroutine* coro, Fence fence);
+
+void Yield(bench::Coroutine* coro);
 
 }

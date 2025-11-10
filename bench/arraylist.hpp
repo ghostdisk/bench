@@ -152,6 +152,14 @@ public:
 		m_capacity = 0;
 	}
 
+	void RemoveAtUnsorted(U32 index) {
+		assert(m_size);
+		if (index < m_size) {
+			m_data[index] = Move(m_data[m_size - 1]);
+			m_size--;
+		}
+	}
+
 private:
 	void MoveFrom(ArrayList&& other) {
 		m_data = other.m_data;
@@ -170,6 +178,7 @@ private:
 		for (U32 i = 0; i < size; i++)
 			new (m_data + i) T(values[i]);
 	}
+
 };
 
 }

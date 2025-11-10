@@ -15,7 +15,6 @@ void Sleep(Coroutine* coro, double seconds) {
 	if (seconds > 0) {
 		g_sleepers.Push({ GetTime() + seconds, coro });
 		BlockCoroutine(coro, 1);
-		Yield(coro);
 	}
 }
 

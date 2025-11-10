@@ -1,6 +1,7 @@
 #pragma once
 #include <bench/core/common.hpp>
 #include <bench/core/string.hpp>
+#include <bench/coroutine.hpp>
 
 namespace bench {
 
@@ -18,7 +19,11 @@ class Asset {
 public:
     String name;
     AssetState state = AssetState::UNLOADED;
+    Fence fence_on_load = {};
 
+    Fence LoadFence();
+    
+    Asset();
     virtual ~Asset();
 };
 

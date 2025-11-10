@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <sal.h>
+#include <stdint.h>
 
 #ifndef BENCH_WIN32
 #	error BENCH_WIN32 must be defined

@@ -10,31 +10,62 @@ The Bench Software Development Kit (The SDK) is a collection of libraries and ap
 
 ### Asynchronous Programming
 
-The SDK provides a Powerful Userspace Coroutine Scheduling System to enable convenient asynchronous programming. If you want something to happen once per second, fire a coroutine with a loop, and call Sleep in it:
+Bench SDK provides a *still-very-early-unstable-work-in-progress* stackful coroutine/fiber-based asynchronous programming environment. 
 
-If you want to do something once per frame, fire a coroutine with a loop and Sleep(1).
+If you want to do something once per second, fire a coroutine with an loop and Sleep(1).
 ```cpp
 	StartCoroutine([](CoroutineHandle coro, void* userdata) {
 		for (;;) {
-			printf("tic\n");
+			printf("tick\n");
+			
+			// Sleep increases the coroutine's block count, and decreases it when the interval passes
 			Sleep(coro, 1.0);
-			printf("tac\n");
-			Sleep(coro, 1.0);
+			
+			// after blocking the coroutine, yield. The reason Sleep and similar functions don't yield
+			// is to allow us to call multiple coroutine-blocking functions, and then Yield once
+			Yield();          
 		}
 	});
+```
+
+Fences are supported for synchronization:
+
+```cpp
+Fence fence = CreateFence();
+int result = 0;
+
+StartCoroutine([&](CoroutineHandle coro) {
+	// Pretend we're doing some hard work...
+	Sleep(coro, 5.0);
+	Yield(coro);
+	result = 1234;
+	
+	SignalFence(fence); 
+});
+
+StartCoroutine([&](CoroutineHandle coro) {
+	// Pretend we're doing some work...
+	Sleep(coro, 2.0);
+	Yield(coro);
+	
+	// Wait for the other coroutine to complete:
+	WaitForFence(coro, fence);
+	Yield();
+});
+
+
 ```
 
 Coroutines are also leveraged for async I/O:
 
 ```cpp
 	StartCoroutine([](CoroutineHandle coro, void* userdata) {
-		File file = FileOpen("file.txt");
+		File file = File::Open("file.txt");
 
 		char buf[32] = {};
-		
-		// FileReadAsync will yield, and the coroutine will be resumed
-		// after the read asynchronously completes.
-		I32 nread = FileReadAsync(coro, file, 32, buf);
+
+		I32 nread = file.ReadAsync(coro, 32, buf);
+		Yield(coro);
 
 		buf[31] = '\0';
 		printf("%s\n", buf);

@@ -1,11 +1,11 @@
-PUBLIC bench_Resume_CoroCompleted
-PUBLIC bench_ResumeCoroutine
-PUBLIC bench_Yield
+PUBLIC bench_CoroCompletedImpl
+PUBLIC bench_ResumeImpl
+PUBLIC bench_YieldImpl
 
 .MODEL FLAT,C
 .CODE
 
-bench_Resume_CoroCompleted PROC
+bench_CoroCompletedImpl PROC
 	MOV ESP, [EBP + 12] ; coro.orig_stack
 	POP EBX
 	POP ESI
@@ -14,9 +14,9 @@ bench_Resume_CoroCompleted PROC
 
 	MOV EAX, 1
 	RET
-bench_Resume_CoroCompleted ENDP
+bench_CoroCompletedImpl ENDP
 
-bench_ResumeCoroutine PROC
+bench_ResumeImpl PROC
 	; save callee-saved registers onto original stack:
 	PUSH EBP
 	PUSH EDI
@@ -37,9 +37,9 @@ bench_ResumeCoroutine PROC
 	POP EBP
 
 	RET
-bench_ResumeCoroutine ENDP
+bench_ResumeImpl ENDP
 
-bench_Yield PROC
+bench_YieldImpl PROC
 	PUSH EBP
 	PUSH EDI
 	PUSH ESI
@@ -58,6 +58,6 @@ bench_Yield PROC
 
 	MOV EAX, 0
 	RET
-bench_Yield ENDP
+bench_YieldImpl ENDP
 
 END
