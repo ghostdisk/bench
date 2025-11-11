@@ -13,6 +13,7 @@ enum class AssetState {
     STREAMING,
     PROCESSING,
     LOADED,
+    ERROR,
 };
 
 class Asset {

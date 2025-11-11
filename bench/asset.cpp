@@ -6,6 +6,7 @@
 #include <bench/coroutine.hpp>
 #include <bench/arraylist.hpp>
 #include <bench/core/time.hpp>
+#include <vendor/fast_obj.h>
 #include <stdio.h>
 
 namespace bench {
@@ -38,20 +39,22 @@ ModelAsset* ModelAsset::Get(String _name) {
 
 	StartCoroutine([=](CoroutineHandle coro) mutable {
 		ScratchArenaView scratch = Arena::Scratch();
-		String file_path = Format(scratch.arena, "./res/", asset->name, ".obj");
+		String file_path = Format(scratch.arena, "./res/meshes/", asset->name, ".obj");
 		void* data;
 		size_t size;
 
-		Sleep(coro, 3);
-		Yield(coro);
-
 		asset->state = AssetState::STREAMING;
-		File::ReadEntireFileAsync(coro, file_path, &data, &size);
-		asset->state = AssetState::PROCESSING;
-		asset->state = AssetState::LOADED;
-		printf("Signalling fence...\n");
+		fastObjMesh* mesh = fast_obj_read(scratch.arena.InternCString(file_path));
+		if (mesh) {
+			int t = 3;
+		}
+		else {
+
+			Format(File::StdErr, "[Error] Failed to read model asset: ", file_path, "\n");
+			asset->state = AssetState::ERROR;
+		}
 		SignalFence(asset->fence_on_load);
-		printf("Signalled fence fence...\n");
+
 	});
 
 	return asset;

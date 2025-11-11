@@ -82,40 +82,71 @@ Currently this is the only officially supported setup. On Visual Studio 2022 you
 - ❌No C++20 support (basically no named initializers)
 - ❌Modern Windows SDK and CRT are quite bloated - an empty statically linked executable with vs141_xp is ~200KB, while with an older Windows Vista SDK it's ~60KB
 
-#### Setting up a vs141_xp Visual Studio project
+### Building with cmake
 
-*TODO: In the future we plan to have a template project, but right now you have to go through the Visual Studio Library Linking Ritual, explained below:* 
+Use the following CMakePresets.json:
+```json
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "base-preset",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolset": "v141_xp",
+      "architecture": "Win32"
+    },
+    {
+      "inherits": "base-preset",
+      "name": "debug",
+      "displayName": "Debug (x86)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "inherits": "base-preset",
+      "name": "release",
+      "displayName": "Release (x86)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "displayName": "Build Debug",
+      "configuration": "debug",
+      "configurePreset": "debug",
+    },
+    {
+      "name": "release",
+      "displayName": "Build Release",
+      "configuration": "release",
+      "configurePreset": "release"
+    }
+  ]
+}
+```
 
-1. From the Visual Studio Installer, select "C++ Windows XP Support for VS 2017 (v141) tools"
-2. Create a new solution with either "C++ Console Application" or "Win32 Application"
-3. Add the Bench SDK as a subdirectory to your project
-4. File > Add > Existing Project, and select bench/proj/vs2017/bench.vcxproj
-5. Configure your game's project:
-	- Switch from x64 to x86 - x64 is not supported at this point in time as it won't run on my 2004 laptop
-	- Configuration Properties/
-		- General/
-			- Windows SDK Version: 10 (or something else, but make sure it matches the bench SDK library's)
-			- Platform Toolset: Visual Studio 2017 - Windows XP (v141_xp)	
-		- C++/
-			- General/
-				- Additional Include Directories - Add $(SolutionDir)bench\
-			- Preprocessor/
-				- Add BENCH_WIN32 define
-			- Code Generation
-				- Runtime Library - for Debug configuration, "Multi-threaded Debug (/MTd)", and for Release configuration: "Multi-threaded (/MT)"
-		- Linker/
-			- General/
-				- Additional Library Directories: Add $(OutDir)
-			- Input/
-				- Additional Dependencies: Add bench.lib
-			- Advanced/
-				- Image Has Safe Exception Handlers: No (/SAFESEH:NO)
-				
-### Custom Setups
+and this CMakeLists.txt:
+```
+cmake_policy(SET CMP0091 "NEW")
+cmake_minimum_required(VERSION 3.24)
 
-If you're feeling adventurous and want to build with another compiler/build system, it should be fairly simple (unless you're targeting XP, which is not covered here and will involve hair pulling).
+project(game)
+add_executable(game
+	game/main.cpp)
 
-1. Create a executable in your build system
-2. Add all the .cpp files into your build - either directly as part of your project, or as a separate library
-3. Add BENCH_WIN32 define (for forward compatibility)
-4. Add the Bench SDK's root folder as an include directory (so <bench/\*> includes resolve)
+add_subdirectory(bench)
+target_link_libraries(game bench_core) 
+
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
+set_property(TARGET game PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+```
+
+
+мога да ви го диктувам кода ако искате
+ФУНКЦИОН 
