@@ -1,6 +1,7 @@
 #include <bench/core/string.hpp>
 #include <bench/core/format.hpp>
 #include <stdio.h>
+#include <string.h>
 
 namespace bench {
 

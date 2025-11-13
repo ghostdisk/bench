@@ -1,18 +1,19 @@
 #pragma once
 #include <bench/core/string.hpp>
-#include <bench/arraylist.hpp>
+#include <bench/core/arraylist.hpp>
 
 namespace bench {
 
-struct IniFileEntry {
-	String key;
-	String value;
+class IniFileEntry {
+public:
+	HeapString key;
+	HeapString value;
 };
 
 class IniFile {
 	ArrayList<IniFileEntry> entries;
 public:
-	String path;
+	HeapString path;
 	bool dirty = false;
 
 	static IniFile Load(const char* path);

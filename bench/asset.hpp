@@ -1,7 +1,7 @@
 #pragma once
 #include <bench/core/common.hpp>
 #include <bench/core/string.hpp>
-#include <bench/coroutine.hpp>
+#include <bench/core/coroutine.hpp>
 
 namespace bench {
 
@@ -25,7 +25,7 @@ public:
     Fence LoadFence();
     
     Asset();
-    virtual ~Asset();
+    virtual ~Asset() {}
 };
 
 class ModelAsset : public Asset {

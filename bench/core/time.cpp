@@ -1,6 +1,6 @@
 #include <bench/core/time.hpp>
-#include <bench/coroutine.hpp>
-#include <bench/arraylist.hpp>
+#include <bench/core/coroutine.hpp>
+#include <bench/core/arraylist.hpp>
 
 namespace bench {
 

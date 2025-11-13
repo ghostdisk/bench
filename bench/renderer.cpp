@@ -1,6 +1,6 @@
+#include <bench/core/window.hpp>
 #include <bench/renderer.hpp>
 #include <bench/gamesettings.hpp>
-#include <bench/window.hpp>
 #include <d3d9.h>
 #include <algorithm>
 
@@ -12,6 +12,7 @@ namespace bench {
 static IDirect3D9* g_d3d = nullptr;
 static IDirect3DDevice9* g_device = nullptr;
 static UINT g_adapter = D3DADAPTER_DEFAULT;
+static Window g_render_window = {};
 
 static int GetColorDepth(D3DFORMAT format) {
 	switch (format) {
@@ -98,7 +99,9 @@ D3DDISPLAYMODE GetDisplayModeFromSettings() {
 	return best_mode;
 }
 
-void InitRenderer() {
+void InitRenderer(Window render_window) {
+	g_render_window = render_window;
+
 	g_d3d = Direct3DCreate9(D3D_SDK_VERSION);
 	AssertAlways(g_d3d, "Failed to init DirectX 9");
 
@@ -118,7 +121,7 @@ void InitRenderer() {
 		present_parameters.MultiSampleQuality = 0;
 
 		present_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		present_parameters.hDeviceWindow = GetMainWindow().hwnd;
+		present_parameters.hDeviceWindow = g_render_window.hwnd;
 		present_parameters.Windowed = false;
 		present_parameters.EnableAutoDepthStencil = false;
 		present_parameters.Flags = 0;
@@ -128,10 +131,10 @@ void InitRenderer() {
 	}
 	else {
 		present_parameters.Windowed = true;
-		present_parameters.hDeviceWindow = GetMainWindow().hwnd;
+		present_parameters.hDeviceWindow = g_render_window.hwnd;
 	}
 
-	g_d3d->CreateDevice(g_adapter, D3DDEVTYPE_HAL, GetMainWindow().hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &present_parameters, &g_device);
+	g_d3d->CreateDevice(g_adapter, D3DDEVTYPE_HAL, g_render_window.hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &present_parameters, &g_device);
 	AssertAlways(g_device, "Failed to init DirectX 9");
 
 }

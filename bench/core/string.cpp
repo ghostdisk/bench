@@ -1,8 +1,16 @@
 #include <bench/core/string.hpp>
 #include <bench/core/writer.hpp>
 #include <stdlib.h>
+#include <string.h>
 
 namespace bench {
+
+
+String::String(const char* cstring) {
+	assert(cstring);
+	this->data = (U8*)cstring;
+	this->length = strlen(cstring);
+}
 
 bool String::operator==(String other) const {
 	if (this->length != other.length)
@@ -51,15 +59,68 @@ String String::Trim() const {
 		return String(data + start, end - start + 1);
 }
 
-String String::CopyToHeap() const {
-	U8* copy_data = (U8*)malloc(length);
-	memcpy(copy_data, data, length);
-	return String(copy_data, length);
+static String CopyStringToHeap(String string) {
+	U8* copy_data = (U8*)malloc(string.length);
+	memcpy(copy_data, string.data, string.length);
+	return String(copy_data, string.length);
 }
 
-void String::FreeFromHeap() {
-	free(data);
-	*this = {};
+HeapString::HeapString() {
+	m_string = {};
 }
+
+HeapString::HeapString(String string) {
+	m_string = CopyStringToHeap(string);
+}
+
+HeapString::HeapString(const char* cstring) {
+	m_string = CopyStringToHeap(String(cstring));
+}
+
+HeapString::HeapString(const HeapString& other) {
+	m_string = CopyStringToHeap(other.m_string);
+}
+
+HeapString::HeapString(HeapString&& other) {
+	m_string = other.m_string;
+	other.m_string = {};
+}
+
+HeapString& HeapString::operator=(const HeapString& other) {
+	if (this != &other) {
+		if (m_string.data)
+			free(m_string.data);
+		m_string = CopyStringToHeap(other.m_string);
+	}
+	return *this;
+}
+
+HeapString& HeapString::operator=(HeapString&& other) {
+	if (this != &other) {
+		if (m_string.data)
+			free(m_string.data);
+		m_string = other.m_string;
+		other.m_string = {};
+	}
+	return *this;
+}
+
+HeapString::~HeapString() {
+	if (m_string.data)
+		free(m_string.data);
+}
+
+HeapString::operator String() const {
+	return m_string;
+}
+
+bool HeapString::operator==(String other) const {
+	return m_string == other;
+}
+
+bool HeapString::operator==(const char* cstring) const {
+	return m_string == cstring;
+}
+
 
 }

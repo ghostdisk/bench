@@ -15,6 +15,5 @@ void BeginFrame();
 void EndFrame();
 void Quit();
 bool ShouldQuit();
-Window GetMainWindow();
 
 }

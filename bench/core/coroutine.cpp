@@ -1,7 +1,7 @@
 #pragma once
-#include <bench/coroutine.hpp>
-#include <bench/sys.hpp>
-#include <bench/arraylist.hpp>
+#include <bench/core/coroutine.hpp>
+#include <bench/core/sys.hpp>
+#include <bench/core/arraylist.hpp>
 #include <stdlib.h>
 #include <atomic>
 #include <mutex>

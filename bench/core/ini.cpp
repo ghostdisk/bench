@@ -1,8 +1,8 @@
 #include <bench/core/arena.hpp>
 #include <bench/core/file.hpp>
 #include <bench/core/string.hpp>
+#include <bench/core/ini.hpp>
 #include <bench/gamesettings.hpp>
-#include <bench/ini.hpp>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -16,7 +16,7 @@ IniFile& GameSettings() {
 
 IniFile IniFile::Load(const char* path) {
 	IniFile ini = {};
-	ini.path = String(path).CopyToHeap();
+	ini.path = path;
 
 	void* file_data;
 	U32 file_size;
@@ -45,13 +45,12 @@ IniFile IniFile::Load(const char* path) {
 void IniFile::SetString(String key, String value) {
 	for (IniFileEntry& entry : entries) {
 		if (entry.key == key) {
-			entry.value.FreeFromHeap();
-			entry.value = value.CopyToHeap();
+			entry.value = value;
 			return;
 		}
 	}
 
-	entries.Push({ key.CopyToHeap(), value.CopyToHeap() });
+	entries.Push({ key, value });
 }
 
 String IniFile::GetString(String key, String fallback) {

@@ -1,15 +1,11 @@
 #include <bench/core/common.hpp>
-#include <bench/application.hpp>
 #include <bench/core/arena.hpp>
 #include <bench/core/file.hpp>
-#include <bench/window.hpp>
-#include <bench/sys.hpp>
-#include <bench/coroutine.hpp>
-#include <Windows.h>
-
-// undef insane Window.h macros:
-#undef CreateWindow
-#undef Yield
+#include <bench/core/sys.hpp>
+#include <bench/core/window.hpp>
+#include <bench/core/coroutine.hpp>
+#include <bench/application.hpp>
+#include <bench/windows.h>
 
 namespace bench {
 
@@ -77,7 +73,7 @@ Window CreateWindow(const CreateWindowOptions& options) {
         CW_USEDEFAULT, CW_USEDEFAULT,
         options.width, options.height,
         nullptr, // parent,
-        nullptr, // menu,
+        options.menu, // menu,
         g_hinstance,
         nullptr); // lparam
 

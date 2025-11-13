@@ -1,10 +1,11 @@
 #pragma once
 #include <bench/core/common.hpp>
-#include <string.h>
 
 namespace bench {
 
+struct String;
 struct Writer;
+class HeapString;
 
 struct String {
 	U8* data;
@@ -20,11 +21,7 @@ struct String {
 		this->length = length;
 	}
 
-	String(const char* cstring) {
-		assert(cstring);
-		this->data = (U8*)cstring;
-		this->length = strlen(cstring);
-	}
+	String(const char* cstring);
 
 	operator bool() {
 		return length > 0;
@@ -35,10 +32,25 @@ struct String {
 
 	bool Cut(U8 byte, String& a, String& b) const;
 	String Trim() const;
-
-	String CopyToHeap() const;
-	void FreeFromHeap();
 };
+
+class HeapString {
+public:
+	String m_string = {};
+
+	HeapString();
+	HeapString(const char* cstring);
+	HeapString(String string);
+	HeapString(const HeapString& other);
+	HeapString(HeapString&& other);
+	HeapString& operator=(const HeapString& other);
+	HeapString& operator=(HeapString&& other);
+	~HeapString();
+	operator String() const;
+	bool operator==(String other) const;
+	bool operator==(const char* cstring) const;
+};
+
 
 void Fmt(const Writer& writer, String str);
 

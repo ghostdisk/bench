@@ -1,5 +1,5 @@
 #pragma once
-#include <bench/ini.hpp>
+#include <bench/core/ini.hpp>
 
 namespace bench {
 

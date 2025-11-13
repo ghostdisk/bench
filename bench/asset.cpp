@@ -2,21 +2,16 @@
 #include <bench/core/format.hpp>
 #include <bench/core/string.hpp>
 #include <bench/core/file.hpp>
-#include <bench/asset.hpp>
-#include <bench/coroutine.hpp>
-#include <bench/arraylist.hpp>
+#include <bench/core/coroutine.hpp>
 #include <bench/core/time.hpp>
+#include <bench/core/arraylist.hpp>
+#include <bench/asset.hpp>
 #include <vendor/fast_obj.h>
 #include <stdio.h>
 
 namespace bench {
 
 static ArrayList<ModelAsset*> g_model_assets;
-
-Asset::~Asset() {
-	if (name)
-		name.FreeFromHeap();
-}
 
 Asset::Asset() {
 	this->fence_on_load = CreateFence();
@@ -34,7 +29,7 @@ ModelAsset* ModelAsset::Get(String _name) {
 	}
 
 	ModelAsset* asset = new ModelAsset();
-	asset->name = _name.CopyToHeap();
+	asset->name = _name;
 	g_model_assets.Push(asset);
 
 	StartCoroutine([=](CoroutineHandle coro) mutable {
