@@ -5,39 +5,30 @@
 #include <editor/gui.hpp>
 #include <bench/windows.h>
 #include <stdio.h>
-#include <CommCtrl.h>
 #include "resource.h"
-#pragma comment(lib, "Comctl32.lib")
 
 namespace bench_editor {
 
 using namespace bench;
 
-INT_PTR CALLBACK OpenProjectDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-		case WM_COMMAND:
-			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-				EndDialog(hDlg, 0);
-			return TRUE;
-	}
-	return FALSE;
-}
+void ShowOpenProjectDialog();
 
 void MainCoro(CoroutineHandle coro) {
 	//GameSettings().GetString("project_path");
-
 }
 
 int main() {
-	INITCOMMONCONTROLSEX icex = { sizeof(icex), ICC_WIN95_CLASSES };
-	InitCommonControlsEx(&icex);
-
-	DialogBoxParamA(GetModuleHandleA(0), MAKEINTRESOURCE(IDD_PROJECT_OPEN_DIALOG), NULL, OpenProjectDialogProc, 0);
-	return 0;
 
 	InitApplicationOptions options = {};
 	options.title = "Bench Editor";
 	InitApplication(options);
+
+	char path[MAX_PATH];
+	path[0] = '\0';
+
+	ShowOpenProjectDialog();
+	return 0;
+
 
 	StartCoroutine([](CoroutineHandle coro) {
 		MainCoro(coro);
