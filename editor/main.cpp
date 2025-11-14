@@ -21,7 +21,9 @@ int main() {
 
 	InitApplicationOptions options = {};
 	options.title = "Bench Editor";
+	options.settings_path = "editor_settings.ini";
 	InitApplication(options);
+
 
 	char path[MAX_PATH];
 	path[0] = '\0';

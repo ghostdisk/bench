@@ -106,7 +106,7 @@ String Arena::InternString(const wchar_t* wide_string) {
 	if (buffer_size) {
 		U8* buffer = (U8*)this->Allocate(buffer_size);
 		if (WideCharToMultiByte(CP_UTF8, 0u, wide_string, -1, (char*)buffer, buffer_size, nullptr, nullptr))
-			return String(buffer, buffer_size - 1);
+			return String((const char*)buffer);
 		else
 			return {};
 	}

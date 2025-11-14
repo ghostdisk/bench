@@ -5,3 +5,4 @@
 // undef insane Window.h macros:
 #undef CreateWindow
 #undef Yield
+#undef GetCurrentDirectory

@@ -16,7 +16,7 @@ public:
 	HeapString path;
 	bool dirty = false;
 
-	static IniFile Load(const char* path);
+	static IniFile Load(String path);
 	void Save();
 	void Destroy();
 

@@ -23,7 +23,7 @@ struct String {
 
 	String(const char* cstring);
 
-	operator bool() {
+	operator bool() const {
 		return length > 0;
 	}
 

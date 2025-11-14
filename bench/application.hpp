@@ -8,6 +8,7 @@ struct Window;
 
 struct InitApplicationOptions {
 	String title = {};
+	String settings_path = {};
 };
 
 bool InitApplication(const InitApplicationOptions& options);

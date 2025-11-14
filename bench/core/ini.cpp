@@ -3,6 +3,7 @@
 #include <bench/core/string.hpp>
 #include <bench/core/ini.hpp>
 #include <bench/gamesettings.hpp>
+#include <bench/core/sys.hpp>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -14,7 +15,7 @@ IniFile& GameSettings() {
 	return g_settings;
 }
 
-IniFile IniFile::Load(const char* path) {
+IniFile IniFile::Load(String path) {
 	IniFile ini = {};
 	ini.path = path;
 
@@ -43,13 +44,13 @@ IniFile IniFile::Load(const char* path) {
 }
 
 void IniFile::SetString(String key, String value) {
+	dirty = true;
 	for (IniFileEntry& entry : entries) {
 		if (entry.key == key) {
 			entry.value = value;
 			return;
 		}
 	}
-
 	entries.Push({ key, value });
 }
 
@@ -115,7 +116,7 @@ void IniFile::Save() {
 			Write(out, entry.key);
 			Write(out, " = ");
 			Write(out, entry.value);
-			Write(out, "\n");
+			Write(out, "\r\n");
 		}
 
 		out.Close();

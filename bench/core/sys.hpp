@@ -5,6 +5,9 @@ typedef struct HINSTANCE__* HINSTANCE;
 
 namespace bench {
 
+struct Arena;
+struct String;
+
 BENCH_ENUM_FLAGS(VirtualMemoryProtection, U8,
 	NONE = 0x00,
 	READ = 0x01,
@@ -32,6 +35,10 @@ void* VirtualAlloc(void* address, U32 size, VirtualAllocType type, VirtualMemory
  * `size` MUST be the same `size` that was passed to VirtualAlloc!
  */
 void VirtualFree(void* address, U32 size, VirtualFreeType type);
+
+String GetCurrentDirectory(Arena& arena);
+
+String GetAbsolutePath(Arena& arena, String path);
 
 extern HINSTANCE g_hinstance;
 

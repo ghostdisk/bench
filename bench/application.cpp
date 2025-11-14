@@ -5,6 +5,7 @@
 #include <bench/core/coroutine.hpp>
 #include <bench/core/window.hpp>
 #include <bench/gamesettings.hpp>
+#include <bench/core/sys.hpp>
 
 namespace bench {
 
@@ -17,8 +18,13 @@ bool g_quit = false;
 bool InitApplication(const InitApplicationOptions& options) {
 	InitArenas();
 	InitWin32();
-	GameSettings() = IniFile::Load("settings.ini");
 
+	ScratchArenaView scratch = Arena::Scratch();
+
+	String settings_path = options.settings_path ? options.settings_path : String("settings.ini");
+	settings_path = GetAbsolutePath(scratch.arena, settings_path);
+
+	GameSettings() = IniFile::Load(settings_path);
 	return true;
 }
 

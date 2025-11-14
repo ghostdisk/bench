@@ -44,13 +44,13 @@ bool String::Cut(U8 byte, String& a, String& b) const {
 String String::Trim() const {
 	U32 start;
 	for (start = 0; start < length; start++) {
-		if (data[start] != ' ' && data[start] != '\n' && data[start] != '\t')
+		if (data[start] != ' ' && data[start] != '\r' && data[start] != '\n' && data[start] != '\t')
 			break;
 	}
 
 	U32 end;
 	for (end = length - 1; end > 0; end--) { // >0 because it's unsigned!
-		if (data[end] != ' ' && data[end] != '\n' && data[end] != '\t')
+		if (data[end] != ' ' && data[end] != '\n' && data[end] != '\t' && data[end] != '\r')
 			break;
 	}
 

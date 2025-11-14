@@ -136,14 +136,25 @@ File File::Open(String path, FileFlags flags, FileCreateDisposition create_dispo
 	DWORD attributes = FILE_ATTRIBUTE_NORMAL;
 	if (flags & FileFlags::ASYNC) attributes |= FILE_FLAG_OVERLAPPED;
 
-	HANDLE handle = CreateFileA(scratch.arena.InternCString(path), access, 0, nullptr, (DWORD)create_disposition, attributes, nullptr);
+	wchar_t* wide_path = scratch.arena.InternWideCString(path);
+	HANDLE handle = CreateFileW(wide_path, access, 0, nullptr, (DWORD)create_disposition, attributes, nullptr);
 
-	if (flags & FileFlags::ASYNC)
-		CreateIoCompletionPort(handle, g_iocp, 0x12345678, 0);
+	if (handle != INVALID_HANDLE_VALUE) {
+		if (flags & FileFlags::ASYNC)
+			CreateIoCompletionPort(handle, g_iocp, 0x12345678, 0);
 
-	File file = {};
-	file.handle = handle;
-	return file;
+		File file = {};
+		file.handle = handle;
+		return file;
+	}
+	else {
+		auto err = GetLastError();
+		File file = {};
+		file.handle = INVALID_HANDLE_VALUE;
+		return file;
+	}
+
+
 }
 
 I32 File::Read(I32 size, void* buffer) {
@@ -243,6 +254,31 @@ void VirtualFree(void* address, U32 size, VirtualFreeType type) {
 		case VirtualFreeType::RELEASE: win32_type = MEM_RELEASE; break;
 	}
 	::VirtualFree(address, 0, win32_type);
+}
+
+String GetCurrentDirectory(Arena& arena) {
+	DWORD buffer_size = ::GetCurrentDirectoryW(0, nullptr);
+	if (buffer_size == 0) {
+		return String();
+	}
+
+	wchar_t* wide_buffer = (wchar_t*)arena.Allocate(buffer_size * 2, alignof(wchar_t));
+	GetCurrentDirectoryW(buffer_size, wide_buffer);
+	return arena.InternString(wide_buffer);
+
+}
+
+String GetAbsolutePath(Arena& arena, String path) {
+	wchar_t* wide_path = arena.InternWideCString(path);
+	DWORD wide_absolute_path_size = GetFullPathNameW(wide_path, 0, nullptr, nullptr);
+	if (wide_absolute_path_size == 0) {
+		return {};
+	}
+
+	wchar_t* wide_absolute_path = (wchar_t*)arena.Allocate(wide_absolute_path_size * sizeof(wchar_t), alignof(wchar_t));
+	GetFullPathNameW(wide_path, wide_absolute_path_size, wide_absolute_path, nullptr);
+
+	return arena.InternString(wide_absolute_path);
 }
 
 }
