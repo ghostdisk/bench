@@ -1,5 +1,6 @@
 #include <bench/core/string.hpp>
 #include <bench/core/writer.hpp>
+#include <bench/windows.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -122,5 +123,16 @@ bool HeapString::operator==(const char* cstring) const {
 	return m_string == cstring;
 }
 
+HeapString::HeapString(const wchar_t* wide_string) {
+	this->m_string = {};
+	int buffer_size = WideCharToMultiByte(CP_UTF8, 0u, wide_string, -1, nullptr, 0, nullptr, nullptr);
+	if (buffer_size) {
+		char* buffer = (char*)malloc(buffer_size);
+		if (WideCharToMultiByte(CP_UTF8, 0u, wide_string, -1, buffer, buffer_size, nullptr, nullptr))
+			this->m_string = String(buffer);
+		else
+			free(buffer);
+	}
+}
 
 }

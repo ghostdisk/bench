@@ -6,6 +6,8 @@
 #include <bench/core/coroutine.hpp>
 #include <bench/application.hpp>
 #include <bench/windows.h>
+#include <CommCtrl.h>
+#pragma comment(lib, "Comctl32.lib")
 
 namespace bench {
 
@@ -56,6 +58,9 @@ void InitWin32() {
 	File::StdIn.handle = GetStdHandle(STD_INPUT_HANDLE);
 	File::StdOut.handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	File::StdErr.handle = GetStdHandle(STD_ERROR_HANDLE);
+
+	INITCOMMONCONTROLSEX icex = { sizeof(icex), ICC_WIN95_CLASSES };
+	InitCommonControlsEx(&icex);
 }
 
 _When_(!condition, _Analysis_noreturn_)

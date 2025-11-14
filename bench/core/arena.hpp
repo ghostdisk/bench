@@ -41,7 +41,9 @@ struct Arena {
 	void Reset(ArenaResetPoint reset_point);
 
 	String InternString(String string);
+	String InternString(const wchar_t* widestring);
 	char* InternCString(String string);
+	wchar_t* InternWideCString(String string);
 
 	void AlignHead(U32 alignment);
 

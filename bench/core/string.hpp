@@ -40,6 +40,7 @@ public:
 
 	HeapString();
 	HeapString(const char* cstring);
+	HeapString(const wchar_t* wide_string);
 	HeapString(String string);
 	HeapString(const HeapString& other);
 	HeapString(HeapString&& other);

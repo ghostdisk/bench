@@ -1,5 +1,6 @@
 #include <bench/core/arena.hpp>
 #include <bench/core/string.hpp>
+#include <bench/windows.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -98,6 +99,32 @@ char* Arena::InternCString(String string) {
 	memcpy(buffer, string.data, string.length);
 	buffer[string.length] = '\0';
 	return (char*)buffer;
+}
+
+String Arena::InternString(const wchar_t* wide_string) {
+	int buffer_size = WideCharToMultiByte(CP_UTF8, 0u, wide_string, -1, nullptr, 0, nullptr, nullptr);
+	if (buffer_size) {
+		U8* buffer = (U8*)this->Allocate(buffer_size);
+		if (WideCharToMultiByte(CP_UTF8, 0u, wide_string, -1, (char*)buffer, buffer_size, nullptr, nullptr))
+			return String(buffer, buffer_size - 1);
+		else
+			return {};
+	}
+	else return {};
+}
+
+wchar_t* Arena::InternWideCString(String string) {
+	int num_utf16_characters = MultiByteToWideChar(CP_UTF8, 0u, (char*)string.data, string.length, nullptr, 0);
+	if (num_utf16_characters) {
+		wchar_t* wide_buffer = (wchar_t*)this->Allocate((num_utf16_characters + 1) * 2);
+		if (MultiByteToWideChar(CP_UTF8, 0u, (char*)string.data, string.length, wide_buffer, num_utf16_characters)) {
+			wide_buffer[num_utf16_characters] = L'\0';
+			return wide_buffer;
+		}
+		else {
+			return nullptr;
+		}
+	}
 }
 
 }

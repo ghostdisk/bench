@@ -1,6 +1,8 @@
 #pragma once
 #include <bench/core/common.hpp>
 
+typedef struct HINSTANCE__* HINSTANCE;
+
 namespace bench {
 
 BENCH_ENUM_FLAGS(VirtualMemoryProtection, U8,
@@ -30,5 +32,7 @@ void* VirtualAlloc(void* address, U32 size, VirtualAllocType type, VirtualMemory
  * `size` MUST be the same `size` that was passed to VirtualAlloc!
  */
 void VirtualFree(void* address, U32 size, VirtualFreeType type);
+
+extern HINSTANCE g_hinstance;
 
 }
