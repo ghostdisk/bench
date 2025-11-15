@@ -24,7 +24,7 @@ bool InitApplication(const InitApplicationOptions& options) {
 	String settings_path = options.settings_path ? options.settings_path : String("settings.ini");
 	settings_path = GetAbsolutePath(scratch.arena, settings_path);
 
-	GameSettings() = IniFile::Load(settings_path);
+	GameSettings().Load(settings_path, false, FileCreateDisposition::OPEN_ALWAYS);
 	return true;
 }
 

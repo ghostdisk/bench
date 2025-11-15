@@ -115,6 +115,10 @@ HeapString::operator String() const {
 	return m_string;
 }
 
+HeapString::operator bool() const {
+	return m_string;
+}
+
 bool HeapString::operator==(String other) const {
 	return m_string == other;
 }

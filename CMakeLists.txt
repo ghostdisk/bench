@@ -16,6 +16,7 @@ add_library(bench_core STATIC
 	bench/application.cpp
 	bench/asset.cpp
 	bench/renderer.cpp
+	bench/project.cpp
 	vendor/fast_obj.c
 	vendor/murmurhash.c)
 

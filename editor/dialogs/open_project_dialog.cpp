@@ -2,7 +2,9 @@
 #include <bench/windows.h>
 #include <bench/core/string.hpp>
 #include <bench/core/arena.hpp>
+#include <bench/core/file.hpp>
 #include <bench/gamesettings.hpp>
+#include <bench/project.hpp>
 #include "../resource.h"
 
 namespace bench_editor {
@@ -12,6 +14,7 @@ using namespace bench;
 class OpenProjectDialog {
 public:
 	HeapString m_project_path = {};
+	Project* m_project = nullptr;
 	HWND m_window_handle = nullptr;
 
 	void UpdateProjectPathFromEditText() {
@@ -29,6 +32,20 @@ public:
 		SetDlgItemTextW(m_window_handle, IDC_EDIT_PATH, scratch.arena.InternWideCString(path));
 	}
 
+	bool LoadProject(String path, FileCreateDisposition create_disposition) {
+		if (m_project)
+			delete m_project;
+		m_project = Project::Load(path, create_disposition);
+
+		if (m_project) {
+			return true;
+		}
+		else {
+			MessageBoxA(nullptr, "Failed to open project", "Failed to open project", MB_ICONERROR | MB_OK);
+			return false;
+		}
+	}
+
 	INT_PTR CALLBACK HandleMessage(UINT msg, WPARAM wparam, LPARAM lparam) {
 		ScratchArenaView scratch = Arena::Scratch();
 
@@ -39,7 +56,6 @@ public:
 
 				switch (control_id) {
 					case IDC_BUTTON_BROWSE: {
-
 						wchar_t path_buffer[MAX_PATH];
 						path_buffer[0] = '\0';
 
@@ -63,6 +79,42 @@ public:
 						break;
 					}
 					case IDC_BUTTON_NEWPROJECT: {
+						wchar_t path_buffer[MAX_PATH];
+						path_buffer[0] = '\0';
+
+						OPENFILENAMEW ofn = {};
+						ofn.lStructSize = sizeof(ofn);
+						ofn.hwndOwner = m_window_handle;
+						ofn.lpstrFilter = L"Bench SDK Project (*.bsprj)\0*.bsprj\0" "All Files\0*.*\0";
+						ofn.lpstrFile = path_buffer;
+						ofn.nMaxFile = sizeof(path_buffer);
+						ofn.lpstrDefExt = L"bsprj";
+						ofn.Flags = OFN_PATHMUSTEXIST;
+
+						if (GetSaveFileNameW(&ofn)) {
+							String absolute_path = GetAbsolutePath(scratch.arena, scratch.arena.InternString(path_buffer));
+							FileStat stat = File::Stat(absolute_path);
+
+							if (!stat.exists) {
+								if (LoadProject(absolute_path, FileCreateDisposition::CREATE_NEW)) {
+									EndDialog(m_window_handle, 1);
+								}
+							} else {
+								int res = MessageBoxA(nullptr, "Failed to create a project - the selected file already exists.\n\nDo you wish to open it instead?", "Project already exists", MB_ICONWARNING | MB_YESNO);
+								if (res == IDYES) {
+									SetProjectPath(absolute_path);
+									if (LoadProject(absolute_path, FileCreateDisposition::OPEN_EXISTING)) {
+										EndDialog(m_window_handle, 1);
+									}
+								}
+							}
+						}
+						break;
+					}
+					case IDC_BUTTON_OPENPROJECT: {
+						if (LoadProject(m_project_path, FileCreateDisposition::OPEN_EXISTING)) {
+							EndDialog(m_window_handle, 1);
+						}
 						break;
 					}
 				}
@@ -98,7 +150,7 @@ static INT_PTR CALLBACK OpenProjectDialogProc(HWND window_handle, UINT msg, WPAR
 	return false;
 }
 
-void ShowOpenProjectDialog() {
+Project* ShowOpenProjectDialog() {
 	OpenProjectDialog dialog = {};
 	dialog.m_project_path = GameSettings().GetString("saved_project_path");
 
@@ -106,6 +158,8 @@ void ShowOpenProjectDialog() {
 	if (dialog_result <= 0) {
 		MessageBoxA(nullptr, "Failed to open the Bench SDK Project Selection Wizard", "Error", MB_ICONERROR | MB_OK);
 	}
+
+	return dialog.m_project;
 }
 
 }

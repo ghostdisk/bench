@@ -10,6 +10,27 @@ File File::StdIn;
 File File::StdOut;
 File File::StdErr;
 
+File::File() {
+	m_value = {};
+}
+
+File::File(File&& other) {
+	m_value = other.m_value;
+	other.m_value = {};
+}
+
+File& File::operator=(File&& other) {
+	if (this != &other) {
+		m_value = other.m_value;
+		other.m_value = {};
+	}
+	return *this;
+}
+
+File::~File() {
+	Close();
+}
+
 bool File::ReadEntireFile(String path, void** out_data, U32* out_size) {
 	*out_data = nullptr;
 	if (out_size) *out_size = 0;
@@ -58,7 +79,7 @@ bool File::ReadEntireFileAsync(Coroutine* coro, String path, void** out_data, U3
 	return true;
 }
 
-File::operator Writer() const {
+FileHandle::operator Writer() const {
 	static WriterVTable writer_vtable = {
 		[](void* userdata, const void* buffer, I32 size) {
 			File* file = (File*)userdata;
@@ -66,6 +87,13 @@ File::operator Writer() const {
 		},
 	};
 	return Writer{ &writer_vtable, (void*)this };
+}
+
+File File::Open(String path, FileFlags flags, FileCreateDisposition mode) {
+	File file = {};
+	FileHandle handle = FileHandle::Open(path, flags, mode);
+	file.m_value = handle.m_value;
+	return file;
 }
 
 }

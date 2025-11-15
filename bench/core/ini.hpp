@@ -1,6 +1,7 @@
 #pragma once
 #include <bench/core/string.hpp>
 #include <bench/core/arraylist.hpp>
+#include <bench/core/file.hpp>
 
 namespace bench {
 
@@ -11,12 +12,14 @@ public:
 };
 
 class IniFile {
-	ArrayList<IniFileEntry> entries;
-public:
-	HeapString path;
-	bool dirty = false;
+	ArrayList<IniFileEntry> m_entries = {};
+	File m_file = {};
+	bool m_file_locked = {};
+	HeapString m_path = {};
+	bool m_dirty = false;
 
-	static IniFile Load(String path);
+public:
+	bool Load(String path, bool lock_file, FileCreateDisposition create_disposition);
 	void Save();
 	void Destroy();
 

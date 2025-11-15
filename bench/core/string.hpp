@@ -48,6 +48,7 @@ public:
 	HeapString& operator=(HeapString&& other);
 	~HeapString();
 	operator String() const;
+	explicit operator bool() const;
 	bool operator==(String other) const;
 	bool operator==(const char* cstring) const;
 };

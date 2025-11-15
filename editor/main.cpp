@@ -2,6 +2,7 @@
 #include <bench/core/coroutine.hpp>
 #include <bench/application.hpp>
 #include <bench/gamesettings.hpp>
+#include <bench/project.hpp>
 #include <editor/gui.hpp>
 #include <bench/windows.h>
 #include <stdio.h>
@@ -11,27 +12,27 @@ namespace bench_editor {
 
 using namespace bench;
 
-void ShowOpenProjectDialog();
+Project* ShowOpenProjectDialog();
 
 void MainCoro(CoroutineHandle coro) {
 	//GameSettings().GetString("project_path");
 }
 
 int main() {
-
 	InitApplicationOptions options = {};
 	options.title = "Bench Editor";
 	options.settings_path = "editor_settings.ini";
 	InitApplication(options);
 
+	Project* project = ShowOpenProjectDialog();
+	if (!project) {
+		return 0;
+	}
+	else {
+		MessageBoxA(0, "Yes project", "Msg", MB_OK);
+	}
 
-	char path[MAX_PATH];
-	path[0] = '\0';
-
-	ShowOpenProjectDialog();
 	return 0;
-
-
 	StartCoroutine([](CoroutineHandle coro) {
 		MainCoro(coro);
 	});

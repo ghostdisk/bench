@@ -15,18 +15,31 @@ IniFile& GameSettings() {
 	return g_settings;
 }
 
-IniFile IniFile::Load(String path) {
-	IniFile ini = {};
-	ini.path = path;
+bool IniFile::Load(String path, bool lock_file, FileCreateDisposition create_disposition) {
+	if (m_path) {
+		if (m_path == path)
+			Destroy();
+		else
+			return false;
+	}
+	m_path = path;
 
-	void* file_data;
-	U32 file_size;
-	if (!File::ReadEntireFile(path, &file_data, &file_size))
-		return ini;
+	m_file = File::Open(path, FileFlags::READ | FileFlags::WRITE, create_disposition);
+	if (!m_file) {
+		Destroy();
+		return false;
+	}
+
+	m_file.Seek(0, FileSeek::END);
+	U32 file_size = m_file.Tell();
+
+	void* file_data = malloc(file_size + 1);
 	DEFER(free(file_data));
 
-	String remaining((U8*)file_data, file_size);
+	m_file.Seek(0, FileSeek::START);
+	m_file.Read(file_size, file_data);
 
+	String remaining((U8*)file_data, file_size);
 	while (remaining) {
 		String line;
 		remaining.Cut('\n', line, remaining);
@@ -36,26 +49,30 @@ IniFile IniFile::Load(String path) {
 			key = key.Trim();
 			value = value.Trim();
 			if (key && value)
-				ini.SetString(key, value);
+				SetString(key, value);
 		}
 	}
 
-	return ini;
+	m_file_locked = lock_file;
+	if (!m_file_locked) {
+		m_file.Close();
+	}
+	return true;
 }
 
 void IniFile::SetString(String key, String value) {
-	dirty = true;
-	for (IniFileEntry& entry : entries) {
+	m_dirty = true;
+	for (IniFileEntry& entry : m_entries) {
 		if (entry.key == key) {
 			entry.value = value;
 			return;
 		}
 	}
-	entries.Push({ key, value });
+	m_entries.Push({ key, value });
 }
 
 String IniFile::GetString(String key, String fallback) {
-	for (const IniFileEntry& entry : entries) {
+	for (const IniFileEntry& entry : m_entries) {
 		if (entry.key == key)
 			return entry.value;
 	}
@@ -63,7 +80,7 @@ String IniFile::GetString(String key, String fallback) {
 }
 
 bool IniFile::Contains(String key) {
-	for (const IniFileEntry& entry : entries) {
+	for (const IniFileEntry& entry : m_entries) {
 		if (entry.key == key)
 			return true;
 	}
@@ -109,19 +126,31 @@ static void Write(File& file, String str) {
 }
 
 void IniFile::Save() {
-	if (dirty) {
-		File out = File::Open(path, FileFlags::WRITE, FileCreateDisposition::CREATE_ALWAYS);
+	if (m_dirty) {
+		if (!m_file_locked) {
+			m_file = File::Open(m_path, FileFlags::WRITE, FileCreateDisposition::OPEN_ALWAYS);
+		}
+		assert(m_file);
 
-		for (const IniFileEntry& entry : this->entries) {
-			Write(out, entry.key);
-			Write(out, " = ");
-			Write(out, entry.value);
-			Write(out, "\r\n");
+		m_file.Seek(0, FileSeek::START);
+		m_file.SetEndOfFile();
+
+		for (const IniFileEntry& entry : this->m_entries) {
+			Write(m_file, entry.key);
+			Write(m_file, " = ");
+			Write(m_file, entry.value);
+			Write(m_file, "\r\n");
 		}
 
-		out.Close();
-		dirty = false;
+		if (!m_file_locked) {
+			m_file.Close();
+		}
+		m_dirty = false;
 	}
+}
+
+void IniFile::Destroy() {
+	*this = {};
 }
 
 }

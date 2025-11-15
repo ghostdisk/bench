@@ -140,7 +140,6 @@ public:
 		return m_data[m_size - 1];
 	}
 
-
 	void Destroy() {
 		if (m_data) {
 			for (U32 i = 0; i < m_size; i++)

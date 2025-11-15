@@ -55,9 +55,9 @@ void InitWin32() {
 	QueryPerformanceFrequency(&timer_frequency_int);
 	g_timer_frequency = double(timer_frequency_int.QuadPart);
 
-	File::StdIn.handle = GetStdHandle(STD_INPUT_HANDLE);
-	File::StdOut.handle = GetStdHandle(STD_OUTPUT_HANDLE);
-	File::StdErr.handle = GetStdHandle(STD_ERROR_HANDLE);
+	File::StdIn.m_value = { GetStdHandle(STD_INPUT_HANDLE) };
+	File::StdOut.m_value = { GetStdHandle(STD_OUTPUT_HANDLE) };
+	File::StdErr.m_value = { GetStdHandle(STD_ERROR_HANDLE) };
 
 	INITCOMMONCONTROLSEX icex = { sizeof(icex), ICC_WIN95_CLASSES };
 	InitCommonControlsEx(&icex);
@@ -126,7 +126,7 @@ bool PollFileEvents() {
 	return had_any;
 }
 
-File File::Open(String path, FileFlags flags, FileCreateDisposition create_disposition) {
+FileHandle FileHandle::Open(String path, FileFlags flags, FileCreateDisposition create_disposition) {
 	ScratchArenaView scratch = Arena::Scratch();
 
 	DWORD access = 0;
@@ -143,35 +143,33 @@ File File::Open(String path, FileFlags flags, FileCreateDisposition create_dispo
 		if (flags & FileFlags::ASYNC)
 			CreateIoCompletionPort(handle, g_iocp, 0x12345678, 0);
 
-		File file = {};
-		file.handle = handle;
+		FileHandle file = {};
+		file.m_value = handle;
 		return file;
 	}
 	else {
 		auto err = GetLastError();
-		File file = {};
-		file.handle = INVALID_HANDLE_VALUE;
-		return file;
+		return {};
 	}
 
 
 }
 
-I32 File::Read(I32 size, void* buffer) {
+I32 FileHandle::Read(I32 size, void* buffer) {
 	DWORD num_read = 0;
-	BOOL ok = ::ReadFile(this->handle, buffer, size, &num_read, nullptr);
+	BOOL ok = ::ReadFile(m_value, buffer, size, &num_read, nullptr);
 	if (ok)
 		return (I32)num_read;
 	else
 		return -1;
 }
 
-I32 File::ReadAsync(Coroutine* coro, I32 size, void* buffer) {
+I32 FileHandle::ReadAsync(Coroutine* coro, I32 size, void* buffer) {
 	IOOperation operation = {};
 	BlockCoroutine(coro, 1);
 	operation.coro = coro;
 	DWORD num_read = 0;
-	BOOL was_sync_read = ::ReadFile(this->handle, buffer, size, &num_read, &operation.overlapped);
+	BOOL was_sync_read = ::ReadFile(m_value, buffer, size, &num_read, &operation.overlapped);
 	if (was_sync_read) {
 		UnblockCurrentCoroutine(coro, 1);
 		return (I32)num_read;
@@ -188,29 +186,35 @@ double GetTime() {
 	return double(now.QuadPart - g_timer_start.QuadPart) / g_timer_frequency;
 }
 
-void File::Seek(I32 offset, FileSeek whence) {
+void FileHandle::Seek(I32 offset, FileSeek whence) {
 	DWORD method = 0;
 	switch (whence) {
 		case FileSeek::START: method = FILE_BEGIN; break;
 		case FileSeek::CURRENT: method = FILE_CURRENT; break;
 		case FileSeek::END: method = FILE_END; break;
 	}
-	SetFilePointer(this->handle, offset, nullptr, method);
+	SetFilePointer(m_value, offset, nullptr, method);
 }
 
-U32 File::Tell() {
-	DWORD offset = SetFilePointer(this->handle, 0, nullptr, FILE_CURRENT);
+U32 FileHandle::Tell() {
+	DWORD offset = SetFilePointer(m_value, 0, nullptr, FILE_CURRENT);
 	return offset;
 }
 
-void File::Close() {
-	CloseHandle(this->handle);
-	handle = nullptr;
+void FileHandle::SetEndOfFile() {
+	::SetEndOfFile(m_value);
 }
 
-I32 File::Write(I32 size, const void* buffer) {
+void FileHandle::Close() {
+	if (m_value) {
+		CloseHandle(m_value);
+		m_value = {};
+	}
+}
+
+I32 FileHandle::Write(I32 size, const void* buffer) {
 	DWORD num_written = 0;
-	BOOL ok = ::WriteFile(this->handle, buffer, size, &num_written, nullptr);
+	BOOL ok = ::WriteFile(m_value, buffer, size, &num_written, nullptr);
 	if (ok) return (I32)num_written;
 	else return -1;
 }
@@ -279,6 +283,28 @@ String GetAbsolutePath(Arena& arena, String path) {
 	GetFullPathNameW(wide_path, wide_absolute_path_size, wide_absolute_path, nullptr);
 
 	return arena.InternString(wide_absolute_path);
+}
+
+FileStat File::Stat(String path) {
+	ScratchArenaView scratch = Arena::Scratch();
+	DWORD attributes = GetFileAttributesW(scratch.arena.InternWideCString(path));
+
+	FileStat stat = {};
+	if (attributes == INVALID_FILE_ATTRIBUTES) {
+		stat.exists = false;
+		return stat;
+	}
+	else {
+		stat.exists = true;
+		if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
+			stat.directory = true;
+		}
+		else if (attributes & (FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_ARCHIVE)) {
+			stat.normal_file = true;
+		}
+		return stat;
+	}
+
 }
 
 }
