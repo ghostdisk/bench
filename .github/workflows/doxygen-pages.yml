@@ -11,25 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install Doxygen
-        uses: mattnotmitt/doxygen-action@v1
-        with:
-          doxyfile-path: ./Doxyfile
-
-      - name: Prepare output directory
-        run: |
-          mkdir -p public/api
-          cp -r docs/html/* public/api/
-
+        
       # dont clutter other people's github pages if they fork this:
       - name: Prevent deploy on forks
         if: github.repository_owner != 'ghostdisk'
         run: |
           echo "Not ghostdisk/bench-sdk repo, skipping deployment."
-          exit 0
+          exit 1
+
+      - name: Build Doxygen HTML
+        uses: mattnotmitt/doxygen-action@v1.9.5
+
+      - name: Prepare output directory
+        run: |
+          mkdir -p public/api
+          cp -r docs/html/* public/api/
 
       - name: Deploy to GitHub Pages
         if: github.repository_owner == 'ghostdisk'
