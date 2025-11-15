@@ -21,9 +21,12 @@ enum class FileSeek {
 
 /// Flags for `File::Open`.
 BENCH_ENUM_FLAGS(FileFlags, U32,
-	READ   = 1, ///< Open file for reading.
-	WRITE  = 2, ///< Open file for writing.
-	ASYNC  = 4, ///< Open file in async mode. 
+	/// Open file for reading.
+	READ   = 1, 
+	/// Open file for writing.
+	WRITE  = 2, 
+	/// Open file in async mode. 
+	ASYNC  = 4, 
 );
 
 /// Specifies how File::Open behaves when opening or creating a file.

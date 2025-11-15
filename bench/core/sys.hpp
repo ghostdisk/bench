@@ -10,10 +10,17 @@ struct String;
 
 /// Memory protection access bitmask
 BENCH_ENUM_FLAGS(VirtualMemoryProtection, U8,
-	NONE = 0x00,    ///< If no other flags are set, memory range will be unaccessible.
-	READ = 0x01,    ///< Memory range will have readable.
-	WRITE = 0x02,   ///< Memory range will have writable. On x86 you can't have write-only memory, you need READ as well!
-	EXECUTE = 0x04, ///< Memory range will be executable.
+	/// If no other flags are set, memory range will be unaccessible.
+	NONE = 0x00,    
+
+	/// Memory range will have readable.
+	READ = 0x01,    
+
+	/// Memory range will have writable. On x86 you can't have write-only memory, you need READ as well!
+	WRITE = 0x02,   
+
+	/// Memory range will be executable.
+	EXECUTE = 0x04, 
 );
 
 enum class VirtualAllocType {

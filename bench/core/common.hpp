@@ -90,7 +90,10 @@ inline void* __CRTDECL operator new(size_t _Size, _Writable_bytes_(_Size) void* 
 // ------------------------------------------------------------
 
 #ifdef BENCH_DOXYGEN
-#define BENCH_ENUM_FLAGS(Name, UnderlyingType, ...) enum class Name : UnderlyingType { __VA_ARGS__ };
+#define BENCH_ENUM_FLAGS(Name, UnderlyingType, ...) \
+    enum class Name : UnderlyingType { \
+        __VA_ARGS__ \
+    };
 #else
 #define BENCH_ENUM_FLAGS(Name, UnderlyingType, ...) \
     struct Name { \
@@ -117,8 +120,7 @@ inline void* __CRTDECL operator new(size_t _Size, _Writable_bytes_(_Size) void* 
 	\
 	constexpr inline Name& operator|=(Name& a, Name other) { a.value |= other.value; return a; } \
 	constexpr inline Name& operator&=(Name& a, Name other) { a.value &= other.value; return a; } \
-	constexpr inline Name& operator^=(Name& a, Name other) { a.value ^= other.value; return a; } \
-
+	constexpr inline Name& operator^=(Name& a, Name other) { a.value ^= other.value; return a; }
 #endif // __DOXYGEN__
 
 #ifndef BENCH_NO_NONPREFIXED_MACROS
