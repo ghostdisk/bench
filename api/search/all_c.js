@@ -1,0 +1,11 @@
+var searchData=
+[
+  ['open_0',['Open',['../classbench_1_1File.html#a32c303c2e18eaae43898da6cdbdbf6e1',1,'bench::File::Open()'],['../structbench_1_1FileHandle.html#a27d7b1fff7af3e926c698e1aaeb5052c',1,'bench::FileHandle::Open()']]],
+  ['open_5falways_1',['OPEN_ALWAYS',['../namespacebench.html#a0e94a81a2dd3420ca1f8a2904228710ca05f81d2836a37915d9d58fc44dbb4d73',1,'bench']]],
+  ['open_5fexisting_2',['OPEN_EXISTING',['../namespacebench.html#a0e94a81a2dd3420ca1f8a2904228710cac572c6d040f5264d6ed8fed785c230a5',1,'bench']]],
+  ['operator_20bool_3',['operator bool',['../classbench_1_1HeapString.html#a0e2134c6ad2356e640879d772fddd18d',1,'bench::HeapString::operator bool()'],['../structbench_1_1String.html#a065a1e03c2d38bb708830a0f3c68b1f0',1,'bench::String::operator bool()'],['../structbench_1_1FileHandle.html#a088dca85de14481a712bcd4207fa0e65',1,'bench::FileHandle::operator bool()']]],
+  ['operator_20string_4',['operator String',['../classbench_1_1HeapString.html#a8a699ad3a4404171ee7f9a62129aab27',1,'bench::HeapString']]],
+  ['operator_20writer_5',['operator Writer',['../structbench_1_1FileHandle.html#a09a47b73592bb5397563b1a85d1a0e48',1,'bench::FileHandle']]],
+  ['operator_3d_6',['operator=',['../classbench_1_1ArrayList.html#a7f7fb8d335e203a05c05d80277c59a0d',1,'bench::ArrayList::operator=(const ArrayList &amp;other)'],['../classbench_1_1ArrayList.html#a2ceb6ed850eec47f823b9c4a9172621e',1,'bench::ArrayList::operator=(ArrayList &amp;&amp;other)'],['../classbench_1_1File.html#a315ca431633bd3fbe8d9f59817b3fd11',1,'bench::File::operator=(File &amp;&amp;other)'],['../classbench_1_1File.html#adf9c2f1d6046466fd83d4232a98e7b46',1,'bench::File::operator=(const File &amp;other)=delete']]],
+  ['operator_3d_3d_7',['operator==',['../structbench_1_1String.html#aa7c93df91ebf2f135e327df594290b30',1,'bench::String::operator==(String other) const'],['../structbench_1_1String.html#aeb87f705f72f180617eb0200c8fbd849',1,'bench::String::operator==(const char *cstring) const'],['../classbench_1_1HeapString.html#a3451a6b8d036fe5a4bc3afe81c27287d',1,'bench::HeapString::operator==(String other) const'],['../classbench_1_1HeapString.html#ae6c5325c39e9fd4b3d8fdf2292f1f6b5',1,'bench::HeapString::operator==(const char *cstring) const']]]
+];
