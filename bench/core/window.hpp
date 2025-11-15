@@ -7,7 +7,8 @@ typedef struct HMENU__* HMENU;
 
 namespace bench {
 
-struct Window {
+class Window {
+public:
 	HWND hwnd = nullptr;
 };
 

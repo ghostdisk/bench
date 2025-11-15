@@ -80,11 +80,11 @@ void* Arena::Allocate(U32 length, U32 alignment) {
 	return this->Allocate(length);
 }
 
-ArenaResetPoint Arena::GetResetPoint() {
-	return ArenaResetPoint{this->head};
+Arena::ResetPoint Arena::GetResetPoint() {
+	return Arena::ResetPoint{this->head};
 }
 
-void Arena::Reset(ArenaResetPoint reset_point) {
+void Arena::Reset(Arena::ResetPoint reset_point) {
 	this->head = reset_point.head;
 }
 

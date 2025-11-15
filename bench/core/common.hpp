@@ -8,6 +8,7 @@
 #	error BENCH_WIN32 must be defined
 #endif
 
+/// main bench namespace
 namespace bench {
 
 typedef signed char        I8;
@@ -18,6 +19,8 @@ typedef unsigned char      U8;
 typedef unsigned short     U16;
 typedef unsigned int       U32;
 typedef unsigned long long U64;
+typedef U32                USIZE;
+typedef I32                ISIZE;
 
 _When_(!condition, _Analysis_noreturn_)
 void AssertAlways(bool condition, const char* fail_message);
@@ -60,9 +63,13 @@ privDefer<F> defer_func(F f) {
 #define BENCH_DEFER_1(x, y) x##y
 #define BENCH_DEFER_2(x, y) BENCH_DEFER_1(x, y)
 #define BENCH_DEFER_3(x)    BENCH_DEFER_2(x, __COUNTER__)
+
+/// Execute `code` when the current scope exits.
+/// @param code The code to run on scope exit.
 #define BENCH_DEFER(code)   auto BENCH_DEFER_3(_defer_) = bench::defer_func([&](){code;})
 
 #ifndef BENCH_NO_NONPREFIXED_MACROS
+/// Convenience macro for BENCH_DEFER. Executes `code` on scope exit.
 #define DEFER BENCH_DEFER
 #endif
 
@@ -82,6 +89,9 @@ inline void* __CRTDECL operator new(size_t _Size, _Writable_bytes_(_Size) void* 
 // --- BENCH_ENUM_FLAGS / ENUM_FLAGS --------------------------
 // ------------------------------------------------------------
 
+#ifdef BENCH_DOXYGEN
+#define BENCH_ENUM_FLAGS(Name, UnderlyingType, ...) enum class Name : UnderlyingType { __VA_ARGS__ };
+#else
 #define BENCH_ENUM_FLAGS(Name, UnderlyingType, ...) \
     struct Name { \
         UnderlyingType value = 0; \
@@ -108,6 +118,8 @@ inline void* __CRTDECL operator new(size_t _Size, _Writable_bytes_(_Size) void* 
 	constexpr inline Name& operator|=(Name& a, Name other) { a.value |= other.value; return a; } \
 	constexpr inline Name& operator&=(Name& a, Name other) { a.value &= other.value; return a; } \
 	constexpr inline Name& operator^=(Name& a, Name other) { a.value ^= other.value; return a; } \
+
+#endif // __DOXYGEN__
 
 #ifndef BENCH_NO_NONPREFIXED_MACROS
 #define ENUM_FLAGS BENCH_ENUM_FLAGS

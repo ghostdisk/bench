@@ -62,7 +62,7 @@ bool IniFile::Load(String path, bool lock_file, FileCreateDisposition create_dis
 
 void IniFile::SetString(String key, String value) {
 	m_dirty = true;
-	for (IniFileEntry& entry : m_entries) {
+	for (Entry& entry : m_entries) {
 		if (entry.key == key) {
 			entry.value = value;
 			return;
@@ -72,7 +72,7 @@ void IniFile::SetString(String key, String value) {
 }
 
 String IniFile::GetString(String key, String fallback) {
-	for (const IniFileEntry& entry : m_entries) {
+	for (const Entry& entry : m_entries) {
 		if (entry.key == key)
 			return entry.value;
 	}
@@ -80,7 +80,7 @@ String IniFile::GetString(String key, String fallback) {
 }
 
 bool IniFile::Contains(String key) {
-	for (const IniFileEntry& entry : m_entries) {
+	for (const Entry& entry : m_entries) {
 		if (entry.key == key)
 			return true;
 	}
@@ -135,7 +135,7 @@ void IniFile::Save() {
 		m_file.Seek(0, FileSeek::START);
 		m_file.SetEndOfFile();
 
-		for (const IniFileEntry& entry : this->m_entries) {
+		for (const Entry& entry : this->m_entries) {
 			Write(m_file, entry.key);
 			Write(m_file, " = ");
 			Write(m_file, entry.value);
