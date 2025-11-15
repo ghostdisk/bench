@@ -59,7 +59,7 @@ void InitWin32() {
 	File::StdOut.m_value = { GetStdHandle(STD_OUTPUT_HANDLE) };
 	File::StdErr.m_value = { GetStdHandle(STD_ERROR_HANDLE) };
 
-	INITCOMMONCONTROLSEX icex = { sizeof(icex), ICC_WIN95_CLASSES };
+	INITCOMMONCONTROLSEX icex = { sizeof(icex), ICC_WIN95_CLASSES | ICC_COOL_CLASSES | ICC_BAR_CLASSES };
 	InitCommonControlsEx(&icex);
 }
 

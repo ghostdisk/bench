@@ -34,6 +34,7 @@ add_executable(bench_editor WIN32
 	editor/bench_editor.exe.manifest
 	editor/bench_editor.rc
 	editor/dialogs/open_project_dialog.cpp
+	editor/editor_window.cpp
 	editor/main.cpp)
 
 target_link_libraries(bench_editor bench_core)
